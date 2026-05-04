@@ -1,26 +1,73 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+  DESIGN TOKENS — ServiJá
+  Regra: não sobrescrever a escala padrão do Tailwind (text-sm, text-base, etc.)
+  Apenas adicionar cores customizadas e ajustar radius/shadows.
+*/
+@theme {
+  /* ── Brand ── */
+  --color-brand:        #494fdf;
+  --color-brand-hover:  #3a40c4;
+  --color-brand-subtle: #eef2ff;   /* indigo-50 — tint limpo do brand */
+
+  /* ── Surfaces ── */
+  --color-surface: #f9fafb;   /* gray-50 — fundo de página */
+  --color-card:    #ffffff;   /* branco puro — fundo de cards */
+
+  /* ── Borders ── */
+  --color-border:        #e5e7eb;   /* gray-200 */
+  --color-border-strong: #d1d5db;   /* gray-300 */
+
+  /* ── Text ── */
+  --color-ink:    #111827;   /* gray-900 */
+  --color-muted:  #6b7280;   /* gray-500 */
+  --color-subtle: #9ca3af;   /* gray-400 */
+
+  /* ── Status ── */
+  --color-success:        #16a34a;
+  --color-success-subtle: #f0fdf4;
+  --color-warning:        #d97706;
+  --color-warning-subtle: #fffbeb;
+  --color-danger:         #dc2626;
+  --color-danger-subtle:  #fef2f2;
+
+  /* ── Border radius ── */
+  --radius-sm: 6px;    /* badges, tags */
+  --radius-md: 8px;    /* botões, inputs */
+  --radius-lg: 12px;   /* cards */
+  --radius-xl: 16px;   /* modais */
+
+  /* ── Sombras — somente em elementos flutuantes ── */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 12px 0 rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 8px 32px 0 rgb(0 0 0 / 0.12);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ── Base ── */
+*, *::before, *::after { box-sizing: border-box; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f9fafb;
+  color: #111827;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ── Hero title (landing) ── */
+.hero-title {
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: #111827;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #d1d5db; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
