@@ -127,11 +127,11 @@ export default function PerfilPrestadorPage({
   return (
     <div>
       {/* Header */}
-      <div className="bg-card border-b border-border px-4 md:px-6 py-6">
+      <div className="border-b border-border/80 bg-gradient-to-b from-card to-surface px-4 md:px-6 py-7 md:py-8">
         <div className="max-w-screen-xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-start gap-5">
             <div
-              className="w-16 h-16 rounded-full bg-brand flex items-center justify-center text-white text-lg font-semibold shrink-0"
+              className="w-16 h-16 rounded-full bg-brand flex items-center justify-center text-white text-lg font-semibold shrink-0 shadow-lg shadow-brand/30 ring-4 ring-brand/10"
               aria-label={`Avatar de ${prestador.nome}`}
             >
               {getInitials(prestador.nome)}
@@ -161,7 +161,7 @@ export default function PerfilPrestadorPage({
             <div className="flex gap-2 shrink-0">
               <button
                 onClick={handleAgendar}
-                className="h-10 px-5 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 active:scale-[0.98] inline-flex items-center gap-2"
+                className="btn-primary gap-2"
               >
                 <Calendar size={15} />
                 Agendar
@@ -171,7 +171,7 @@ export default function PerfilPrestadorPage({
                   onClick={toggleFavorito}
                   disabled={favLoading}
                   aria-label={favorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
-                  className={`h-10 w-10 rounded-md border flex items-center justify-center transition-colors duration-150 active:scale-[0.98] disabled:opacity-40
+                  className={`h-10 w-10 rounded-lg border flex items-center justify-center transition-all duration-200 active:scale-[0.98] disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30
                     ${favorito
                       ? 'border-danger/30 bg-danger-subtle text-danger'
                       : 'border-border text-muted hover:text-danger hover:border-danger/30 hover:bg-danger-subtle'
@@ -198,7 +198,7 @@ export default function PerfilPrestadorPage({
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`h-11 px-4 text-sm font-medium border-b-2 transition-colors duration-150
+                className={`h-11 px-4 text-sm font-medium border-b-2 transition-colors duration-200
                 ${tab === t.key
                   ? 'border-brand text-brand'
                   : 'border-transparent text-muted hover:text-ink'
@@ -238,7 +238,7 @@ export default function PerfilPrestadorPage({
           ) : (
             <div className="space-y-3">
               {avaliacoes.slice(0, 10).map((av) => (
-                <div key={av.id} className="bg-card border border-border rounded-lg p-4">
+                <div key={av.id} className="card-surface p-5">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-full bg-surface border border-border flex items-center justify-center text-xs font-medium text-muted">

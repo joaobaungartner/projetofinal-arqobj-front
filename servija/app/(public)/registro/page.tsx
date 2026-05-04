@@ -79,9 +79,6 @@ export default function RegistroPage() {
     }
   }
 
-  const inputCls =
-    'h-10 w-full px-3 rounded-md border border-border bg-card text-sm text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand transition-colors duration-150'
-
   const Label = ({ htmlFor, children, optional }: { htmlFor: string; children: React.ReactNode; optional?: boolean }) => (
     <label htmlFor={htmlFor} className="block text-xs font-medium text-ink mb-1.5">
       {children}
@@ -90,31 +87,31 @@ export default function RegistroPage() {
   )
 
   return (
-    <div className="min-h-[calc(100vh-56px)] bg-surface flex items-center justify-center px-4 py-12">
+    <div className="min-h-[calc(100vh-3.5rem)] bg-surface flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
-          <Link href="/" className="text-base font-semibold text-ink">
+          <Link href="/" className="text-base font-semibold text-ink tracking-tight">
             Servi<span className="text-brand">Já</span>
           </Link>
-          <h1 className="text-xl font-semibold text-ink mt-5 mb-1.5">Criar conta</h1>
+          <h1 className="text-xl font-semibold text-ink mt-5 mb-1.5 tracking-tight">Criar conta</h1>
           <p className="text-sm text-muted">
             Já tem conta?{' '}
-            <Link href="/login" className="text-brand font-medium hover:underline">
+            <Link href="/login" className="text-brand font-medium hover:underline underline-offset-2">
               Entrar
             </Link>
           </p>
         </div>
 
-        <div className="bg-card border border-border rounded-xl p-6">
+        <div className="card-surface p-6 sm:p-7">
           {/* Tipo switcher */}
-          <div className="flex bg-surface rounded-md p-0.5 mb-5 border border-border">
+          <div className="segmented-control mb-5">
             {(['CLIENTE', 'PRESTADOR'] as Tipo[]).map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => setTipo(t)}
-                className={`flex-1 h-8 rounded text-xs font-medium transition-all duration-150
-                  ${tipo === t ? 'bg-card text-ink shadow-sm border border-border' : 'text-muted'}`}
+                className={`segmented-control-btn
+                  ${tipo === t ? 'segmented-control-btn-active' : 'segmented-control-btn-idle'}`}
               >
                 {t === 'CLIENTE' ? 'Sou cliente' : 'Sou prestador'}
               </button>
@@ -125,38 +122,38 @@ export default function RegistroPage() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
                 <Label htmlFor="nome">Nome completo</Label>
-                <input id="nome" type="text" value={form.nome} onChange={set('nome')} placeholder="Seu nome" className={inputCls} />
+                <input id="nome" type="text" value={form.nome} onChange={set('nome')} placeholder="Seu nome" className="input-field" />
               </div>
               <div className="sm:col-span-2">
                 <Label htmlFor="reg-email">E-mail</Label>
-                <input id="reg-email" type="email" autoComplete="email" value={form.email} onChange={set('email')} placeholder="seu@email.com" className={inputCls} />
+                <input id="reg-email" type="email" autoComplete="email" value={form.email} onChange={set('email')} placeholder="seu@email.com" className="input-field" />
               </div>
               <div>
                 <Label htmlFor="reg-senha">Senha</Label>
-                <input id="reg-senha" type="password" autoComplete="new-password" value={form.senha} onChange={set('senha')} placeholder="Mín. 8 caracteres" className={inputCls} />
+                <input id="reg-senha" type="password" autoComplete="new-password" value={form.senha} onChange={set('senha')} placeholder="Mín. 8 caracteres" className="input-field" />
               </div>
               <div>
                 <Label htmlFor="confirmar">Confirmar senha</Label>
-                <input id="confirmar" type="password" autoComplete="new-password" value={form.confirmarSenha} onChange={set('confirmarSenha')} placeholder="Repita a senha" className={inputCls} />
+                <input id="confirmar" type="password" autoComplete="new-password" value={form.confirmarSenha} onChange={set('confirmarSenha')} placeholder="Repita a senha" className="input-field" />
               </div>
               <div>
                 <Label htmlFor="telefone" optional>Telefone</Label>
-                <input id="telefone" type="tel" value={form.telefone} onChange={set('telefone')} placeholder="(11) 99999-9999" className={inputCls} />
+                <input id="telefone" type="tel" value={form.telefone} onChange={set('telefone')} placeholder="(11) 99999-9999" className="input-field" />
               </div>
               <div>
                 <Label htmlFor="cidade">Cidade</Label>
-                <input id="cidade" type="text" value={form.cidade} onChange={set('cidade')} placeholder="Sua cidade" className={inputCls} />
+                <input id="cidade" type="text" value={form.cidade} onChange={set('cidade')} placeholder="Sua cidade" className="input-field" />
               </div>
               <div className="sm:col-span-2">
                 <Label htmlFor="bairro" optional>Bairro</Label>
-                <input id="bairro" type="text" value={form.bairro} onChange={set('bairro')} placeholder="Seu bairro" className={inputCls} />
+                <input id="bairro" type="text" value={form.bairro} onChange={set('bairro')} placeholder="Seu bairro" className="input-field" />
               </div>
 
               {tipo === 'PRESTADOR' && (
                 <>
                   <div className="sm:col-span-2">
                     <Label htmlFor="categoria" optional>Categoria</Label>
-                    <select id="categoria" value={form.categoriaId} onChange={set('categoriaId')} className={inputCls}>
+                    <select id="categoria" value={form.categoriaId} onChange={set('categoriaId')} className="input-field">
                       <option value="">Selecione uma categoria</option>
                       {categorias.map((cat) => (
                         <option key={cat.id} value={cat.id}>{cat.nome}</option>
@@ -171,7 +168,7 @@ export default function RegistroPage() {
                       onChange={set('descricao')}
                       rows={3}
                       placeholder="Descreva seus serviços…"
-                      className="w-full px-3 py-2 rounded-md border border-border bg-card text-sm text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand transition-colors duration-150 resize-none"
+                      className="textarea-field min-h-[5.5rem]"
                     />
                   </div>
                 </>
@@ -179,7 +176,7 @@ export default function RegistroPage() {
             </div>
 
             {formError && (
-              <p className="text-xs text-danger bg-danger-subtle border border-danger/20 px-3 py-2 rounded-md">
+              <p className="text-xs text-danger bg-danger-subtle border border-danger/20 px-3 py-2 rounded-lg">
                 {formError}
               </p>
             )}
@@ -187,7 +184,7 @@ export default function RegistroPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-10 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-1"
+              className="w-full btn-primary mt-1"
             >
               {loading
                 ? <><Loader2 size={15} className="animate-spin" /> Criando conta…</>

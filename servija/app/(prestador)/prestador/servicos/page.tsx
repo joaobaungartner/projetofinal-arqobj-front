@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Pencil, Scissors, Loader2, X } from 'lucide-react'
+import { Plus, Pencil, Scissors, Loader2 } from 'lucide-react'
 import { servicosApi } from '@/lib/api'
 import type { Servico, CreateServicoDto } from '@/lib/types'
 import { useAuth } from '@/contexts/AuthContext'
@@ -9,6 +9,7 @@ import { useToast } from '@/contexts/ToastContext'
 import { AuthGuard } from '@/components/AuthGuard'
 import { EmptyState } from '@/components/EmptyState'
 import { PageWrapper } from '@/components/PageWrapper'
+import { SimpleModal } from '@/components/SimpleModal'
 import { Skeleton } from '@/components/LoadingSkeleton'
 import { formatCurrency, formatDuration } from '@/lib/utils'
 
@@ -20,37 +21,6 @@ interface FormData {
 }
 
 const emptyForm: FormData = { nome: '', descricao: '', preco: '', duracaoMinutos: '' }
-
-function Modal({
-  title,
-  onClose,
-  children,
-}: {
-  title: string
-  onClose: () => void
-  children: React.ReactNode
-}) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative bg-card border border-border rounded-xl w-full max-w-md shadow-lg">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <h2 className="text-sm font-semibold text-ink">{title}</h2>
-          <button onClick={onClose} aria-label="Fechar" className="p-1 rounded-md text-muted hover:text-ink hover:bg-surface transition-colors">
-            <X size={16} />
-          </button>
-        </div>
-        <div className="p-5">{children}</div>
-      </div>
-    </div>
-  )
-}
 
 function ServicosContent() {
   const { user } = useAuth()
@@ -125,16 +95,13 @@ function ServicosContent() {
     }
   }
 
-  const inputCls =
-    'h-10 w-full px-3 rounded-md border border-border bg-card text-sm text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand transition-colors duration-150'
-
   return (
     <PageWrapper>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-ink tracking-tight">Meus serviços</h1>
         <button
           onClick={openCreate}
-          className="h-9 px-4 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 active:scale-[0.98] inline-flex items-center gap-1.5"
+          className="btn-primary-sm gap-1.5"
         >
           <Plus size={15} />
           Novo serviço
@@ -142,34 +109,34 @@ function ServicosContent() {
       </div>
 
       {showForm && (
-        <Modal title={editing ? 'Editar serviço' : 'Novo serviço'} onClose={() => setShowForm(false)}>
+        <SimpleModal title={editing ? 'Editar serviço' : 'Novo serviço'} onClose={() => setShowForm(false)}>
           <form onSubmit={handleSave} className="space-y-4">
             <div>
               <label htmlFor="svc-nome" className="block text-xs font-medium text-ink mb-1.5">Nome *</label>
-              <input id="svc-nome" type="text" required value={form.nome} onChange={(e) => setForm((p) => ({ ...p, nome: e.target.value }))} className={inputCls} />
+              <input id="svc-nome" type="text" required value={form.nome} onChange={(e) => setForm((p) => ({ ...p, nome: e.target.value }))} className="input-field" />
             </div>
             <div>
               <label htmlFor="svc-desc" className="block text-xs font-medium text-ink mb-1.5">Descrição <span className="text-subtle font-normal">(opcional)</span></label>
-              <textarea id="svc-desc" rows={2} value={form.descricao} onChange={(e) => setForm((p) => ({ ...p, descricao: e.target.value }))} className="w-full px-3 py-2 rounded-md border border-border bg-card text-sm text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand transition-colors duration-150 resize-none" />
+              <textarea id="svc-desc" rows={2} value={form.descricao} onChange={(e) => setForm((p) => ({ ...p, descricao: e.target.value }))} className="textarea-field min-h-[4.5rem]" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label htmlFor="svc-preco" className="block text-xs font-medium text-ink mb-1.5">Preço (R$) *</label>
-                <input id="svc-preco" type="number" step="0.01" min="0" required value={form.preco} onChange={(e) => setForm((p) => ({ ...p, preco: e.target.value }))} className={inputCls} />
+                <input id="svc-preco" type="number" step="0.01" min="0" required value={form.preco} onChange={(e) => setForm((p) => ({ ...p, preco: e.target.value }))} className="input-field" />
               </div>
               <div>
                 <label htmlFor="svc-dur" className="block text-xs font-medium text-ink mb-1.5">Duração (min) *</label>
-                <input id="svc-dur" type="number" min="1" required value={form.duracaoMinutos} onChange={(e) => setForm((p) => ({ ...p, duracaoMinutos: e.target.value }))} className={inputCls} />
+                <input id="svc-dur" type="number" min="1" required value={form.duracaoMinutos} onChange={(e) => setForm((p) => ({ ...p, duracaoMinutos: e.target.value }))} className="input-field" />
               </div>
             </div>
-            <div className="flex gap-3 pt-1">
-              <button type="button" onClick={() => setShowForm(false)} className="h-10 px-4 rounded-md border border-border text-sm font-medium text-ink hover:bg-surface transition-colors duration-150">Cancelar</button>
-              <button type="submit" disabled={saving} className="flex-1 h-10 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 disabled:opacity-40 flex items-center justify-center gap-2">
+            <div className="flex gap-3 pt-1 flex-wrap">
+              <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">Cancelar</button>
+              <button type="submit" disabled={saving} className="flex-1 min-w-[140px] btn-primary">
                 {saving ? <><Loader2 size={14} className="animate-spin" /> Salvando…</> : 'Salvar'}
               </button>
             </div>
           </form>
-        </Modal>
+        </SimpleModal>
       )}
 
       {loading ? (
@@ -177,13 +144,13 @@ function ServicosContent() {
           {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-20" />)}
         </div>
       ) : servicos.length === 0 ? (
-        <div className="bg-card border border-border rounded-lg">
+        <div className="card-surface overflow-hidden">
           <EmptyState
             icon={Scissors}
             title="Nenhum serviço cadastrado"
             description="Adicione os serviços que você oferece para que clientes possam te encontrar."
             action={
-              <button onClick={openCreate} className="h-9 px-4 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 active:scale-[0.98]">
+              <button onClick={openCreate} className="btn-primary-sm">
                 Criar primeiro serviço
               </button>
             }
@@ -192,7 +159,7 @@ function ServicosContent() {
       ) : (
         <div className="space-y-2">
           {servicos.map((s) => (
-            <div key={s.id} className={`bg-card border border-border rounded-lg p-4 flex items-center gap-4 transition-opacity ${!s.ativo ? 'opacity-55' : ''}`}>
+            <div key={s.id} className={`card-surface p-4 flex items-center gap-4 transition-opacity ${!s.ativo ? 'opacity-55' : ''}`}>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-semibold text-ink">{s.nome}</span>

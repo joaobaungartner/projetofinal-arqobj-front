@@ -12,11 +12,11 @@ export function ProviderCard({ prestador }: ProviderCardProps) {
   return (
     <Link
       href={`/prestadores/${prestador.id}`}
-      className="block bg-card border border-border rounded-lg p-5 hover:border-border-strong hover:-translate-y-px transition-all duration-150 group"
+      className="block bg-card border border-border rounded-xl p-5 shadow-sm shadow-black/[0.03] transition-all duration-200 ease-out hover:border-border-strong hover:-translate-y-0.5 hover:shadow-md group"
     >
       <div className="flex items-start gap-3">
         <div
-          className="w-11 h-11 rounded-full bg-brand flex items-center justify-center text-white text-sm font-semibold shrink-0"
+          className="w-11 h-11 rounded-full bg-brand flex items-center justify-center text-white text-sm font-semibold shrink-0 shadow-md shadow-brand/25 ring-2 ring-white"
           aria-label={`Avatar de ${prestador.nome}`}
         >
           {getInitials(prestador.nome)}

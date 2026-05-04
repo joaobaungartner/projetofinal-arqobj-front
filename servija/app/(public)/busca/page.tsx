@@ -78,19 +78,19 @@ export default function BuscaPage() {
   }
 
   const hasFilters = cidade || bairro || categoriaId
-  const inputCls =
-    'h-10 w-full px-3 rounded-md border border-border bg-card text-sm text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand transition-colors duration-150'
 
   return (
     <PageWrapper>
       {/* Search card */}
-      <div className="bg-card border border-border rounded-lg p-5 mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <SlidersHorizontal size={16} strokeWidth={1.75} className="text-muted" />
-          <h1 className="text-sm font-semibold text-ink">Buscar prestadores</h1>
+      <div className="card-surface p-5 sm:p-6 mb-6">
+        <div className="flex items-center gap-2.5 mb-4">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-subtle text-brand">
+            <SlidersHorizontal size={16} strokeWidth={1.75} />
+          </div>
+          <h1 className="text-base font-semibold text-ink tracking-tight">Buscar prestadores</h1>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-3 mb-3">
+        <div className="grid sm:grid-cols-3 gap-3 sm:gap-4 mb-3">
           <div>
             <label htmlFor="cidade" className="block text-xs font-medium text-ink mb-1.5">
               Cidade <span className="text-danger">*</span>
@@ -102,7 +102,7 @@ export default function BuscaPage() {
               value={cidade}
               onChange={(e) => setCidade(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className={inputCls}
+              className="input-field"
             />
           </div>
           <div>
@@ -116,7 +116,7 @@ export default function BuscaPage() {
               value={bairro}
               onChange={(e) => setBairro(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className={inputCls}
+              className="input-field"
             />
           </div>
           <div>
@@ -127,7 +127,7 @@ export default function BuscaPage() {
               id="categoria"
               value={categoriaId}
               onChange={(e) => setCategoriaId(e.target.value)}
-              className={inputCls}
+              className="input-field"
             >
               <option value="">Todas as categorias</option>
               {categorias.map((cat) => (
@@ -138,14 +138,14 @@ export default function BuscaPage() {
         </div>
 
         {error && (
-          <p className="text-xs text-danger mb-3">{error}</p>
+          <p className="text-xs text-danger mb-3 font-medium">{error}</p>
         )}
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleSearch}
             disabled={loading}
-            className="h-10 px-5 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-2"
+            className="btn-primary"
           >
             <Search size={15} />
             {loading ? 'Buscando…' : 'Buscar'}
@@ -153,7 +153,7 @@ export default function BuscaPage() {
           {hasFilters && (
             <button
               onClick={handleClear}
-              className="h-10 px-3 rounded-md border border-border text-sm text-muted hover:text-ink hover:bg-surface transition-colors duration-150 inline-flex items-center gap-1"
+              className="btn-secondary-sm"
             >
               <X size={14} />
               Limpar
@@ -168,7 +168,7 @@ export default function BuscaPage() {
           {Array.from({ length: 6 }).map((_, i) => <ProviderCardSkeleton key={i} />)}
         </div>
       ) : searched && prestadores.length === 0 ? (
-        <div className="bg-card border border-border rounded-lg">
+        <div className="card-surface overflow-hidden">
           <EmptyState
             icon={Search}
             title="Nenhum prestador encontrado"
@@ -176,7 +176,7 @@ export default function BuscaPage() {
             action={
               <button
                 onClick={handleClear}
-                className="h-9 px-4 rounded-md border border-border-strong text-sm font-medium text-ink hover:bg-surface transition-colors duration-150"
+                className="btn-secondary-sm"
               >
                 Limpar filtros
               </button>
@@ -193,7 +193,7 @@ export default function BuscaPage() {
           </div>
         </>
       ) : (
-        <div className="bg-card border border-border rounded-lg">
+        <div className="card-surface overflow-hidden">
           <EmptyState
             icon={Search}
             title="Busque por prestadores"

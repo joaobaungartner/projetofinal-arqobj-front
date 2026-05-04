@@ -25,7 +25,7 @@ export function AppointmentCard({ agendamento, viewAs, actions }: AppointmentCar
   const PayIcon = paymentIcons[agendamento.formaPagamento]
 
   return (
-    <div className="bg-card border border-border rounded-lg p-5">
+    <div className="bg-card border border-border rounded-xl p-5 shadow-sm shadow-black/[0.03] transition-shadow duration-200 hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-ink truncate">

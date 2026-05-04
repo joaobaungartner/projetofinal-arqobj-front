@@ -50,7 +50,8 @@ function FavoritosContent() {
 
   return (
     <PageWrapper>
-      <h1 className="text-2xl font-semibold text-ink tracking-tight mb-6">Favoritos</h1>
+      <h1 className="text-2xl font-semibold text-ink tracking-tight mb-1">Favoritos</h1>
+      <p className="text-sm text-muted mb-6">Prestadores que você salvou para acessar rápido.</p>
 
       {loading ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -59,16 +60,13 @@ function FavoritosContent() {
           ))}
         </div>
       ) : favoritos.length === 0 ? (
-        <div className="bg-card border border-border rounded-lg">
+        <div className="card-surface overflow-hidden">
           <EmptyState
             icon={Heart}
             title="Nenhum favorito ainda"
             description="Salve prestadores que você gostou para encontrá-los facilmente."
             action={
-              <Link
-                href="/busca"
-                className="h-9 px-4 rounded-md border border-border-strong text-sm font-medium text-ink hover:bg-surface transition-colors duration-150 inline-block leading-9"
-              >
+              <Link href="/busca" className="btn-secondary-sm inline-flex">
                 Buscar prestadores
               </Link>
             }
@@ -77,9 +75,12 @@ function FavoritosContent() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {favoritos.map((fav) => (
-            <div key={fav.id} className="bg-card border border-border rounded-lg p-5">
+            <div
+              key={fav.id}
+              className="card-surface p-5 transition-shadow duration-200 hover:shadow-md"
+            >
               <div className="flex items-start gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white text-sm font-semibold shrink-0">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white shadow-md shadow-brand/25 ring-2 ring-white">
                   {getInitials(fav.prestadorNome ?? '?')}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -94,18 +95,19 @@ function FavoritosContent() {
                   )}
                 </div>
               </div>
-              <div className="flex gap-2 pt-3 border-t border-border">
+              <div className="flex gap-2 border-t border-border/80 pt-4">
                 <Link
                   href={`/prestadores/${fav.prestadorId}`}
-                  className="flex-1 h-9 rounded-md bg-brand text-white text-xs font-medium hover:bg-brand-hover transition-colors duration-150 flex items-center justify-center"
+                  className="btn-primary-sm flex-1 text-center"
                 >
                   Ver perfil
                 </Link>
                 <button
+                  type="button"
                   onClick={() => handleRemover(fav.id)}
                   disabled={removing === fav.id}
                   aria-label="Remover dos favoritos"
-                  className="h-9 w-9 rounded-md border border-border text-muted hover:text-danger hover:border-danger/30 hover:bg-danger-subtle transition-colors duration-150 disabled:opacity-40 flex items-center justify-center"
+                  className="focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted transition-colors duration-200 hover:border-danger/35 hover:bg-danger-subtle hover:text-danger disabled:opacity-40"
                 >
                   <Trash2 size={14} strokeWidth={1.75} />
                 </button>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CalendarCheck, Loader2 } from 'lucide-react'
 import { agendamentosApi, avaliacoesApi } from '@/lib/api'
@@ -12,6 +13,7 @@ import { AppointmentCard } from '@/components/AppointmentCard'
 import { EmptyState } from '@/components/EmptyState'
 import { PageWrapper } from '@/components/PageWrapper'
 import { AppointmentCardSkeleton } from '@/components/LoadingSkeleton'
+import { ScrollFilterTabs } from '@/components/ScrollFilterTabs'
 
 const TABS: { label: string; status: AppointmentStatus | 'ALL' }[] = [
   { label: 'Todos', status: 'ALL' },
@@ -68,40 +70,22 @@ function AgendamentosContent() {
 
   return (
     <PageWrapper>
-      <h1 className="text-2xl font-semibold text-ink tracking-tight mb-6">Meus agendamentos</h1>
+      <h1 className="text-2xl font-semibold text-ink tracking-tight mb-1">Meus agendamentos</h1>
+      <p className="text-sm text-muted mb-6">Acompanhe e gerencie seus agendamentos.</p>
 
-      {/* Tabs */}
-      <div className="flex gap-1 overflow-x-auto pb-1 mb-5">
-        {TABS.map((tab) => {
-          const count = countByTab(tab.status)
-          return (
-            <button
-              key={tab.status}
-              onClick={() => setActiveTab(tab.status)}
-              className={`shrink-0 h-8 px-3 rounded-md text-xs font-medium transition-colors duration-150 inline-flex items-center gap-1.5
-                ${activeTab === tab.status
-                  ? 'bg-brand-subtle text-brand'
-                  : 'text-muted hover:text-ink hover:bg-surface'
-                }`}
-            >
-              {tab.label}
-              {count > 0 && (
-                <span className={`text-xs rounded-sm px-1 py-0.5 tabular-nums
-                  ${activeTab === tab.status ? 'bg-brand/15' : 'bg-border'}`}>
-                  {count}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
+      <ScrollFilterTabs
+        tabs={TABS.map((t) => ({ key: String(t.status), label: t.label }))}
+        active={String(activeTab)}
+        onChange={(k) => setActiveTab(k as AppointmentStatus | 'ALL')}
+        countFor={(k) => countByTab(k as AppointmentStatus | 'ALL')}
+      />
 
       {loading ? (
         <div className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => <AppointmentCardSkeleton key={i} />)}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-card border border-border rounded-lg">
+        <div className="card-surface overflow-hidden">
           <EmptyState
             icon={CalendarCheck}
             title="Nenhum agendamento"
@@ -110,12 +94,9 @@ function AgendamentosContent() {
               : 'Nenhum agendamento nesta categoria.'}
             action={
               activeTab === 'ALL' ? (
-                <a
-                  href="/busca"
-                  className="h-9 px-4 rounded-md border border-border-strong text-sm font-medium text-ink hover:bg-surface transition-colors duration-150 inline-block leading-9"
-                >
+                <Link href="/busca" className="btn-secondary-sm inline-flex">
                   Buscar prestadores
-                </a>
+                </Link>
               ) : undefined
             }
           />
@@ -131,17 +112,19 @@ function AgendamentosContent() {
                 <>
                   {ag.status === 'CONCLUIDO' && !avaliadosIds.has(ag.id) && (
                     <button
+                      type="button"
                       onClick={() => router.push(`/avaliar/${ag.id}`)}
-                      className="h-9 px-4 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 active:scale-[0.98]"
+                      className="btn-primary-sm"
                     >
                       Avaliar
                     </button>
                   )}
                   {(ag.status === 'PENDENTE' || ag.status === 'CONFIRMADO') && (
                     <button
+                      type="button"
                       onClick={() => handleCancelar(ag.id)}
                       disabled={actionLoading === ag.id}
-                      className="h-9 px-4 rounded-md border border-border text-sm font-medium text-danger hover:bg-danger-subtle hover:border-danger/30 transition-colors duration-150 active:scale-[0.98] disabled:opacity-40 inline-flex items-center gap-1.5"
+                      className="btn-secondary-sm border-danger/25 text-danger hover:border-danger/35 hover:bg-danger-subtle"
                     >
                       {actionLoading === ag.id && <Loader2 size={13} className="animate-spin" />}
                       Cancelar

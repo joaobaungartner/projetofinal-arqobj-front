@@ -16,12 +16,12 @@ export function ServiceCard({ servico, onSelect, selected, action }: ServiceCard
       tabIndex={onSelect ? 0 : undefined}
       onKeyDown={onSelect ? (e) => e.key === 'Enter' && onSelect(servico) : undefined}
       onClick={() => onSelect?.(servico)}
-      className={`bg-card border rounded-lg p-5 transition-all duration-150
+      className={`bg-card border rounded-xl p-5 shadow-sm shadow-black/[0.03] transition-all duration-200 ease-out
         ${onSelect ? 'cursor-pointer' : ''}
         ${selected
-          ? 'border-brand ring-2 ring-brand/15'
+          ? 'border-brand ring-2 ring-brand/20 shadow-md'
           : onSelect
-            ? 'border-border hover:border-border-strong hover:-translate-y-px'
+            ? 'border-border hover:border-border-strong hover:-translate-y-0.5 hover:shadow-md'
             : 'border-border'
         }
       `}

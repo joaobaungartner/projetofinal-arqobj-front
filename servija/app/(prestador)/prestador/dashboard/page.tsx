@@ -70,17 +70,17 @@ function DashboardContent() {
         </div>
       ) : (
         <div className="grid sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-card border border-border rounded-lg p-5">
+          <div className="card-surface p-5 hover:shadow-md transition-shadow duration-200">
             <p className="text-xs text-muted uppercase tracking-wider mb-2">Pendentes</p>
             <p className="text-2xl font-semibold text-ink tabular-nums">{pendentes.length}</p>
             <p className="text-xs text-warning mt-1">aguardando confirmação</p>
           </div>
-          <div className="bg-card border border-border rounded-lg p-5">
+          <div className="card-surface p-5 hover:shadow-md transition-shadow duration-200">
             <p className="text-xs text-muted uppercase tracking-wider mb-2">Confirmados hoje</p>
             <p className="text-2xl font-semibold text-ink tabular-nums">{confirmadosHoje.length}</p>
             <p className="text-xs text-brand mt-1">agendados para hoje</p>
           </div>
-          <div className="bg-card border border-border rounded-lg p-5">
+          <div className="card-surface p-5 hover:shadow-md transition-shadow duration-200">
             <p className="text-xs text-muted uppercase tracking-wider mb-2">Concluídos</p>
             <p className="text-2xl font-semibold text-ink tabular-nums">{concluidos}</p>
             <p className="text-xs text-success mt-1">serviços realizados</p>
@@ -92,21 +92,21 @@ function DashboardContent() {
       <div className="flex flex-wrap gap-2 mb-8">
         <Link
           href="/prestador/agendamentos"
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md border border-border text-sm font-medium text-ink hover:bg-surface transition-colors duration-150"
+          className="btn-secondary-sm gap-1.5"
         >
           <CalendarCheck size={14} strokeWidth={1.75} />
           Todos os agendamentos
         </Link>
         <Link
           href="/prestador/servicos"
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md border border-border text-sm font-medium text-ink hover:bg-surface transition-colors duration-150"
+          className="btn-secondary-sm gap-1.5"
         >
           <Scissors size={14} strokeWidth={1.75} />
           Gerenciar serviços
         </Link>
         <Link
           href="/prestador/disponibilidades"
-          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-md border border-border text-sm font-medium text-ink hover:bg-surface transition-colors duration-150"
+          className="btn-secondary-sm gap-1.5"
         >
           <Clock size={14} strokeWidth={1.75} />
           Disponibilidades
@@ -128,7 +128,7 @@ function DashboardContent() {
           {Array.from({ length: 2 }).map((_, i) => <AppointmentCardSkeleton key={i} />)}
         </div>
       ) : pendentes.length === 0 ? (
-        <div className="bg-card border border-border rounded-lg">
+        <div className="card-surface overflow-hidden">
           <EmptyState
             icon={TrendingUp}
             title="Tudo em dia"
@@ -147,7 +147,7 @@ function DashboardContent() {
                   <button
                     onClick={() => doAction(ag.id, agendamentosApi.confirmar, 'Agendamento confirmado')}
                     disabled={actionLoading === ag.id}
-                    className="h-9 px-4 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 active:scale-[0.98] disabled:opacity-40 inline-flex items-center gap-1.5"
+                    className="btn-primary-sm"
                   >
                     {actionLoading === ag.id
                       ? <Loader2 size={13} className="animate-spin" />
@@ -157,7 +157,7 @@ function DashboardContent() {
                   <button
                     onClick={() => doAction(ag.id, agendamentosApi.recusar, 'Agendamento recusado')}
                     disabled={actionLoading === ag.id}
-                    className="h-9 px-4 rounded-md border border-border text-sm font-medium text-danger hover:bg-danger-subtle hover:border-danger/30 transition-colors duration-150 active:scale-[0.98] disabled:opacity-40"
+                    className="btn-secondary-sm text-danger hover:bg-danger-subtle hover:border-danger/30 border-danger/20"
                   >
                     Recusar
                   </button>

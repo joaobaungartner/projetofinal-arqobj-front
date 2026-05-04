@@ -78,9 +78,9 @@ function AvaliarContent({ agendamentoId }: { agendamentoId: number }) {
     <PageWrapper className="max-w-lg">
       <h1 className="text-2xl font-semibold text-ink tracking-tight mb-6">Avaliar serviço</h1>
 
-      <div className="bg-card border border-border rounded-lg p-6">
+      <div className="bg-card border border-border rounded-xl p-6 shadow-sm shadow-black/[0.03]">
         {/* Info do agendamento */}
-        <div className="bg-surface border border-border rounded-md p-4 mb-6">
+        <div className="bg-surface border border-border rounded-xl p-4 mb-6">
           <p className="text-sm font-semibold text-ink">
             {agendamento.servicoNome ?? 'Serviço'}
           </p>
@@ -130,22 +130,22 @@ function AvaliarContent({ agendamentoId }: { agendamentoId: number }) {
               onChange={(e) => setComentario(e.target.value)}
               rows={3}
               placeholder="Conte como foi a experiência…"
-              className="w-full px-3 py-2 rounded-md border border-border bg-card text-sm text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand transition-colors duration-150 resize-none"
+              className="textarea-field"
             />
           </div>
 
-          <div className="flex gap-3 pt-1">
+          <div className="flex gap-3 pt-1 flex-wrap">
             <button
               type="button"
               onClick={() => router.back()}
-              className="h-10 px-5 rounded-md border border-border text-sm font-medium text-ink hover:bg-surface transition-colors duration-150"
+              className="btn-secondary"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="flex-1 h-10 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 min-w-[160px] btn-primary"
             >
               {submitting
                 ? <><Loader2 size={15} className="animate-spin" /> Enviando…</>

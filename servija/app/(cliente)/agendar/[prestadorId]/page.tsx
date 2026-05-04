@@ -22,29 +22,38 @@ const PAGAMENTOS: { value: PaymentMethod; label: string; icon: React.ElementType
 ]
 
 function StepIndicator({ current, total }: { current: number; total: number }) {
+  const labels = ['Serviço', 'Data e hora', 'Confirmação']
   return (
-    <div className="flex items-center gap-0 mb-8">
-      {Array.from({ length: total }).map((_, i) => {
-        const step = i + 1
-        const done = step < current
-        const active = step === current
-        return (
-          <div key={step} className="flex items-center">
-            <div
-              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-150
-                ${done ? 'bg-brand text-white' : active ? 'bg-brand text-white ring-4 ring-brand/20' : 'bg-border text-subtle'}`}
-            >
-              {done ? <Check size={13} strokeWidth={2.5} /> : step}
+    <div className="mb-8 space-y-3">
+      <div className="flex flex-wrap items-center justify-center gap-y-2 sm:justify-start">
+        {Array.from({ length: total }).map((_, i) => {
+          const step = i + 1
+          const done = step < current
+          const active = step === current
+          return (
+            <div key={step} className="flex items-center">
+              <div
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold transition-all duration-200 sm:h-7 sm:w-7
+                  ${done ? 'bg-brand text-white shadow-md shadow-brand/25' : active ? 'bg-brand text-white shadow-md ring-4 ring-brand/20' : 'bg-border text-subtle'}`}
+              >
+                {done ? <Check size={13} strokeWidth={2.5} /> : step}
+              </div>
+              {step < total && (
+                <div
+                  className={`mx-1 h-0.5 w-8 shrink-0 rounded-full sm:w-12 ${step < current ? 'bg-brand' : 'bg-border'}`}
+                  aria-hidden
+                />
+              )}
             </div>
-            {step < total && (
-              <div className={`w-12 h-0.5 mx-1 ${step < current ? 'bg-brand' : 'bg-border'}`} />
-            )}
-          </div>
-        )
-      })}
-      <span className="ml-3 text-xs text-muted">
-        {['Serviço', 'Data e hora', 'Confirmação'][current - 1]}
-      </span>
+          )
+        })}
+      </div>
+      <p className="text-center text-xs leading-relaxed text-muted sm:text-left">
+        <span className="font-semibold text-brand">Passo {current}</span>
+        <span className="text-subtle"> de {total}</span>
+        <span className="mx-2 text-border">·</span>
+        <span className="text-ink">{labels[current - 1]}</span>
+      </p>
     </div>
   )
 }
@@ -115,22 +124,19 @@ function AgendarContent({ prestadorId }: { prestadorId: number }) {
     )
   }
 
-  const inputCls =
-    'h-10 w-full px-3 rounded-md border border-border bg-card text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand transition-colors duration-150'
-  const btnBack =
-    'h-10 px-5 rounded-md border border-border text-sm font-medium text-ink hover:bg-surface transition-colors duration-150'
-  const btnNext =
-    'h-10 px-5 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed'
+  const inputCls = 'input-field'
+  const btnBack = 'btn-secondary'
+  const btnNext = 'btn-primary'
 
   return (
     <PageWrapper className="max-w-xl">
       <StepIndicator current={step} total={3} />
 
-      <div className="bg-card border border-border rounded-lg p-6">
+      <div className="card-surface p-6 sm:p-7">
         {/* Step 1 */}
         {step === 1 && (
           <div>
-            <h2 className="text-sm font-semibold text-ink mb-4">Escolha o serviço</h2>
+            <h2 className="text-sm font-semibold text-ink mb-4 tracking-tight">Escolha o serviço</h2>
             {servicos.length === 0 ? (
               <EmptyState icon={Coins} title="Nenhum serviço disponível" />
             ) : (
@@ -147,6 +153,7 @@ function AgendarContent({ prestadorId }: { prestadorId: number }) {
             )}
             <div className="mt-6">
               <button
+                type="button"
                 onClick={() => setStep(2)}
                 disabled={!servicoSelecionado}
                 className={btnNext}
@@ -162,7 +169,7 @@ function AgendarContent({ prestadorId }: { prestadorId: number }) {
           <div>
             <h2 className="text-sm font-semibold text-ink mb-4">Escolha data e hora</h2>
             {disponibilidades.length > 0 && (
-              <div className="mb-4 p-3 bg-surface border border-border rounded-md">
+              <div className="mb-4 p-3.5 bg-surface border border-border rounded-lg">
                 <p className="text-xs font-medium text-muted mb-2">Dias disponíveis</p>
                 <div className="flex flex-wrap gap-1.5">
                   {DIAS_SEMANA.map((dia, i) =>
@@ -187,9 +194,9 @@ function AgendarContent({ prestadorId }: { prestadorId: number }) {
                 className={inputCls}
               />
             </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => setStep(1)} className={btnBack}>Voltar</button>
-              <button onClick={() => setStep(3)} disabled={!dataHora} className={btnNext}>
+            <div className="flex gap-3 mt-6 flex-wrap">
+              <button onClick={() => setStep(1)} type="button" className={btnBack}>Voltar</button>
+              <button onClick={() => setStep(3)} disabled={!dataHora} type="button" className={btnNext}>
                 Próximo
               </button>
             </div>
@@ -202,7 +209,7 @@ function AgendarContent({ prestadorId }: { prestadorId: number }) {
             <h2 className="text-sm font-semibold text-ink mb-4">Confirmar agendamento</h2>
 
             {/* Resumo */}
-            <div className="bg-surface border border-border rounded-md p-4 space-y-2 mb-5">
+            <div className="bg-surface border border-border rounded-xl p-4 space-y-2 mb-5 shadow-inner shadow-black/2">
               {[
                 ['Prestador', prestador?.nome],
                 ['Serviço', servicoSelecionado.nome],
@@ -231,7 +238,7 @@ function AgendarContent({ prestadorId }: { prestadorId: number }) {
                     key={value}
                     type="button"
                     onClick={() => setPagamento(value)}
-                    className={`h-12 rounded-md flex flex-col items-center justify-center gap-1 text-xs font-medium border transition-all duration-150
+                    className={`h-12 rounded-lg flex flex-col items-center justify-center gap-1 text-xs font-medium border transition-all duration-200
                       ${pagamento === value
                         ? 'border-brand bg-brand-subtle text-brand'
                         : 'border-border text-muted hover:border-border-strong hover:text-ink'
@@ -255,16 +262,17 @@ function AgendarContent({ prestadorId }: { prestadorId: number }) {
                 onChange={(e) => setObservacao(e.target.value)}
                 rows={2}
                 placeholder="Algum detalhe especial?"
-                className="w-full px-3 py-2 rounded-md border border-border bg-card text-sm text-ink placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand transition-colors duration-150 resize-none"
+                className="textarea-field"
               />
             </div>
 
-            <div className="flex gap-3">
-              <button onClick={() => setStep(2)} className={btnBack}>Voltar</button>
+            <div className="flex gap-3 flex-wrap">
+              <button type="button" onClick={() => setStep(2)} className={btnBack}>Voltar</button>
               <button
+                type="button"
                 onClick={handleConfirmar}
                 disabled={submitting}
-                className={`flex-1 ${btnNext} flex items-center justify-center gap-2`}
+                className={`flex-1 min-w-[200px] ${btnNext}`}
               >
                 {submitting
                   ? <><Loader2 size={15} className="animate-spin" /> Confirmando…</>

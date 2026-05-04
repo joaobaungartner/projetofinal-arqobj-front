@@ -2,27 +2,26 @@
 
 /*
   DESIGN TOKENS — ServiJá
-  Regra: não sobrescrever a escala padrão do Tailwind (text-sm, text-base, etc.)
-  Apenas adicionar cores customizadas e ajustar radius/shadows.
+  Componentes em @layer para consistência sem alterar lógica das páginas.
 */
 @theme {
   /* ── Brand ── */
   --color-brand:        #494fdf;
-  --color-brand-hover:  #3a40c4;
-  --color-brand-subtle: #eef2ff;   /* indigo-50 — tint limpo do brand */
+  --color-brand-hover:  #3d42c9;
+  --color-brand-subtle: #eef2ff;
 
   /* ── Surfaces ── */
-  --color-surface: #f9fafb;   /* gray-50 — fundo de página */
-  --color-card:    #ffffff;   /* branco puro — fundo de cards */
+  --color-surface: #f4f6f9;
+  --color-card:    #ffffff;
 
   /* ── Borders ── */
-  --color-border:        #e5e7eb;   /* gray-200 */
-  --color-border-strong: #d1d5db;   /* gray-300 */
+  --color-border:        #e8eaef;
+  --color-border-strong: #d1d5db;
 
   /* ── Text ── */
-  --color-ink:    #111827;   /* gray-900 */
-  --color-muted:  #6b7280;   /* gray-500 */
-  --color-subtle: #9ca3af;   /* gray-400 */
+  --color-ink:    #0f172a;
+  --color-muted:  #64748b;
+  --color-subtle: #94a3b8;
 
   /* ── Status ── */
   --color-success:        #16a34a;
@@ -33,15 +32,15 @@
   --color-danger-subtle:  #fef2f2;
 
   /* ── Border radius ── */
-  --radius-sm: 6px;    /* badges, tags */
-  --radius-md: 8px;    /* botões, inputs */
-  --radius-lg: 12px;   /* cards */
-  --radius-xl: 16px;   /* modais */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
 
-  /* ── Sombras — somente em elementos flutuantes ── */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 12px 0 rgb(0 0 0 / 0.08);
-  --shadow-lg: 0 8px 32px 0 rgb(0 0 0 / 0.12);
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.04);
+  --shadow-md: 0 4px 14px -2px rgb(15 23 42 / 0.08), 0 2px 6px -2px rgb(15 23 42 / 0.04);
+  --shadow-lg: 0 12px 40px -8px rgb(15 23 42 / 0.12), 0 4px 16px -4px rgb(15 23 42 / 0.06);
 }
 
 /* ── Base ── */
@@ -50,24 +49,156 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background-color: #f9fafb;
-  color: #111827;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+::selection {
+  background-color: color-mix(in srgb, var(--color-brand) 22%, transparent);
+  color: var(--color-ink);
+}
+
 /* ── Hero title (landing) ── */
 .hero-title {
-  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-size: clamp(2rem, 5vw, 2.85rem);
   font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
-  color: #111827;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: var(--color-ink);
+}
+
+/* Mesma tipografia do hero, texto claro sobre foto */
+.hero-title-on-photo {
+  font-size: clamp(2rem, 5vw, 2.85rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: #ffffff;
 }
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar        { width: 5px; height: 5px; }
+::-webkit-scrollbar        { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: #d1d5db; border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+::-webkit-scrollbar-thumb  { background: #cbd5e1; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* ── Component layer (inputs, botões, foco) ── */
+@layer components {
+  .focus-ring {
+    @apply outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+  }
+
+  .input-field {
+    @apply h-10 w-full rounded-lg border border-border bg-card px-3.5 text-sm text-ink placeholder:text-subtle;
+    @apply shadow-sm shadow-black/[0.02];
+    @apply transition-[box-shadow,border-color,background-color] duration-200 ease-out;
+    @apply focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20;
+  }
+
+  .textarea-field {
+    @apply w-full resize-none rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm text-ink placeholder:text-subtle;
+    @apply shadow-sm shadow-black/[0.02];
+    @apply transition-[box-shadow,border-color] duration-200 ease-out;
+    @apply focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20;
+  }
+
+  .btn-primary {
+    @apply inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg px-5 text-sm font-medium text-white;
+    @apply bg-brand shadow-sm shadow-brand/25;
+    @apply transition-[transform,background-color,box-shadow,opacity] duration-200 ease-out;
+    @apply hover:bg-brand-hover hover:shadow-md hover:shadow-brand/20;
+    @apply active:scale-[0.98];
+    @apply disabled:pointer-events-none disabled:opacity-45;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/45 focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+  }
+
+  .btn-primary-sm {
+    @apply inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-medium text-white;
+    @apply bg-brand shadow-sm shadow-brand/20;
+    @apply transition-[transform,background-color,opacity] duration-200 ease-out;
+    @apply hover:bg-brand-hover active:scale-[0.98];
+    @apply disabled:pointer-events-none disabled:opacity-45;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/45 focus-visible:ring-offset-2 focus-visible:ring-offset-card;
+  }
+
+  .btn-secondary {
+    @apply inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-card px-5 text-sm font-medium text-ink;
+    @apply shadow-sm shadow-black/[0.03];
+    @apply transition-[transform,background-color,border-color,box-shadow] duration-200 ease-out;
+    @apply hover:border-border-strong hover:bg-surface;
+    @apply active:scale-[0.98];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/25 focus-visible:ring-offset-2 focus-visible:ring-offset-surface;
+  }
+
+  .btn-secondary-sm {
+    @apply inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-4 text-sm font-medium text-ink;
+    @apply transition-[transform,background-color,border-color] duration-200 ease-out;
+    @apply hover:border-border-strong hover:bg-surface active:scale-[0.98];
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/25 focus-visible:ring-offset-2 focus-visible:ring-offset-card;
+  }
+
+  .btn-ghost {
+    @apply inline-flex h-10 items-center justify-center rounded-lg px-4 text-sm font-medium text-muted;
+    @apply transition-colors duration-200 ease-out;
+    @apply hover:bg-surface hover:text-ink;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/25 focus-visible:ring-offset-2 focus-visible:ring-offset-card;
+  }
+
+  .card-surface {
+    @apply rounded-xl border border-border bg-card shadow-sm shadow-black/[0.04];
+  }
+
+  .segmented-control {
+    @apply flex rounded-lg border border-border bg-surface p-0.5;
+  }
+
+  .segmented-control-btn {
+    @apply flex-1 min-h-9 items-center justify-center rounded-md py-1.5 text-xs font-medium transition-all duration-200 ease-out;
+  }
+
+  .segmented-control-btn-active {
+    @apply bg-card text-ink shadow-sm shadow-black/[0.06] ring-1 ring-border;
+  }
+
+  .segmented-control-btn-idle {
+    @apply text-muted hover:text-ink;
+  }
+
+  .btn-success-sm {
+    @apply inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg px-4 text-sm font-medium text-white;
+    @apply bg-success shadow-sm;
+    @apply transition-[transform,opacity,filter] duration-200 ease-out;
+    @apply hover:brightness-95 active:scale-[0.98];
+    @apply disabled:pointer-events-none disabled:opacity-45;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-success/40 focus-visible:ring-offset-2 focus-visible:ring-offset-card;
+  }
+}
+
+/* ── Toast entrance (motion-safe) ── */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@layer utilities {
+  .scrollbar-tabs {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-border) 90%, transparent) transparent;
+  }
+  .scrollbar-tabs::-webkit-scrollbar {
+    height: 5px;
+  }
+  .scrollbar-tabs::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background-color: color-mix(in srgb, var(--color-border) 85%, transparent);
+  }
+}

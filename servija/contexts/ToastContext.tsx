@@ -64,7 +64,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             return (
               <div
                 key={t.id}
-                className={`pointer-events-auto flex items-start gap-3 px-4 py-3 rounded-lg border shadow-md text-sm font-medium ${styles[t.type]}`}
+                style={{ animation: 'toast-in 0.35s ease-out' }}
+                className={`pointer-events-auto flex items-start gap-3 px-4 py-3.5 rounded-xl border shadow-lg text-sm font-medium ${styles[t.type]}`}
               >
                 <Icon size={16} strokeWidth={1.75} className="mt-0.5 shrink-0" />
                 <span className="flex-1 text-ink">{t.message}</span>

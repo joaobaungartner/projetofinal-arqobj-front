@@ -38,8 +38,8 @@ export function Sidebar({ role }: SidebarProps) {
   const items = role === 'PRESTADOR' ? PRESTADOR_NAV : CLIENTE_NAV
 
   return (
-    <aside className="hidden md:flex w-60 shrink-0 flex-col border-r border-border bg-surface min-h-[calc(100vh-56px)]">
-      <nav className="flex flex-col gap-0.5 p-3 pt-4">
+    <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-border/80 bg-card/40 backdrop-blur-sm min-h-[calc(100vh-3.5rem)]">
+      <nav className="flex flex-col gap-1 p-3 pt-5">
         {items.map((item) => {
           const active = pathname.startsWith(item.href)
           const Icon = item.icon
@@ -47,10 +47,10 @@ export function Sidebar({ role }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-2.5 h-9 px-3 rounded-md text-sm font-medium transition-colors duration-150
+              className={`flex items-center gap-3 h-10 px-3 rounded-lg text-sm font-medium transition-all duration-200
                 ${active
-                  ? 'bg-brand-subtle text-brand'
-                  : 'text-muted hover:text-ink hover:bg-border/50'
+                  ? 'bg-brand-subtle text-brand shadow-sm'
+                  : 'text-muted hover:text-ink hover:bg-surface/80'
                 }`}
             >
               <Icon size={16} strokeWidth={active ? 2 : 1.75} />

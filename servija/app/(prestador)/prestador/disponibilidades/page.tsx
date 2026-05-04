@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Plus, Pencil, Trash2, Clock, X, Loader2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, Clock, Loader2 } from 'lucide-react'
 import { prestadoresApi, disponibilidadesApi } from '@/lib/api'
 import type { Disponibilidade } from '@/lib/types'
 import { useAuth } from '@/contexts/AuthContext'
@@ -9,33 +9,12 @@ import { useToast } from '@/contexts/ToastContext'
 import { AuthGuard } from '@/components/AuthGuard'
 import { EmptyState } from '@/components/EmptyState'
 import { PageWrapper } from '@/components/PageWrapper'
+import { SimpleModal } from '@/components/SimpleModal'
 import { Skeleton } from '@/components/LoadingSkeleton'
 import { DIAS_SEMANA } from '@/lib/utils'
 
 interface FormData { diaSemana: string; horaInicio: string; horaFim: string }
 const emptyForm: FormData = { diaSemana: '1', horaInicio: '08:00', horaFim: '17:00' }
-
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative bg-card border border-border rounded-xl w-full max-w-sm shadow-lg">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <h2 className="text-sm font-semibold text-ink">{title}</h2>
-          <button onClick={onClose} aria-label="Fechar" className="p-1 rounded-md text-muted hover:text-ink hover:bg-surface transition-colors">
-            <X size={16} />
-          </button>
-        </div>
-        <div className="p-5">{children}</div>
-      </div>
-    </div>
-  )
-}
 
 function DisponibilidadesContent() {
   const { user } = useAuth()
@@ -104,15 +83,13 @@ function DisponibilidadesContent() {
     items: disponibilidades.filter((d) => d.diaSemana === i),
   })).filter((d) => d.items.length > 0)
 
-  const inputCls = 'h-10 w-full px-3 rounded-md border border-border bg-card text-sm text-ink focus:outline-none focus:ring-2 focus:ring-brand/25 focus:border-brand transition-colors duration-150'
-
   return (
     <PageWrapper>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold text-ink tracking-tight">Disponibilidade</h1>
         <button
           onClick={openCreate}
-          className="h-9 px-4 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 active:scale-[0.98] inline-flex items-center gap-1.5"
+          className="btn-primary-sm gap-1.5"
         >
           <Plus size={15} />
           Adicionar horário
@@ -120,32 +97,36 @@ function DisponibilidadesContent() {
       </div>
 
       {showForm && (
-        <Modal title={editing ? 'Editar disponibilidade' : 'Novo horário'} onClose={() => setShowForm(false)}>
+        <SimpleModal
+          narrow
+          title={editing ? 'Editar disponibilidade' : 'Novo horário'}
+          onClose={() => setShowForm(false)}
+        >
           <form onSubmit={handleSave} className="space-y-4">
             <div>
               <label htmlFor="dia" className="block text-xs font-medium text-ink mb-1.5">Dia da semana</label>
-              <select id="dia" value={form.diaSemana} onChange={(e) => setForm((p) => ({ ...p, diaSemana: e.target.value }))} className={inputCls}>
+              <select id="dia" value={form.diaSemana} onChange={(e) => setForm((p) => ({ ...p, diaSemana: e.target.value }))} className="input-field">
                 {DIAS_SEMANA.map((dia, i) => <option key={i} value={i}>{dia}</option>)}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label htmlFor="inicio" className="block text-xs font-medium text-ink mb-1.5">Início</label>
-                <input id="inicio" type="time" value={form.horaInicio} onChange={(e) => setForm((p) => ({ ...p, horaInicio: e.target.value }))} className={inputCls} />
+                <input id="inicio" type="time" value={form.horaInicio} onChange={(e) => setForm((p) => ({ ...p, horaInicio: e.target.value }))} className="input-field" />
               </div>
               <div>
                 <label htmlFor="fim" className="block text-xs font-medium text-ink mb-1.5">Fim</label>
-                <input id="fim" type="time" value={form.horaFim} onChange={(e) => setForm((p) => ({ ...p, horaFim: e.target.value }))} className={inputCls} />
+                <input id="fim" type="time" value={form.horaFim} onChange={(e) => setForm((p) => ({ ...p, horaFim: e.target.value }))} className="input-field" />
               </div>
             </div>
-            <div className="flex gap-3 pt-1">
-              <button type="button" onClick={() => setShowForm(false)} className="h-10 px-4 rounded-md border border-border text-sm font-medium text-ink hover:bg-surface transition-colors duration-150">Cancelar</button>
-              <button type="submit" disabled={saving} className="flex-1 h-10 rounded-md bg-brand text-white text-sm font-medium hover:bg-brand-hover transition-colors duration-150 disabled:opacity-40 flex items-center justify-center gap-2">
+            <div className="flex gap-3 pt-1 flex-wrap">
+              <button type="button" onClick={() => setShowForm(false)} className="btn-secondary">Cancelar</button>
+              <button type="submit" disabled={saving} className="flex-1 min-w-[120px] btn-primary">
                 {saving ? <><Loader2 size={14} className="animate-spin" /> Salvando…</> : 'Salvar'}
               </button>
             </div>
           </form>
-        </Modal>
+        </SimpleModal>
       )}
 
       {loading ? (
@@ -153,7 +134,7 @@ function DisponibilidadesContent() {
           {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-16" />)}
         </div>
       ) : disponibilidades.length === 0 ? (
-        <div className="bg-card border border-border rounded-lg">
+        <div className="card-surface overflow-hidden">
           <EmptyState
             icon={Clock}
             title="Nenhum horário cadastrado"
@@ -168,7 +149,7 @@ function DisponibilidadesContent() {
       ) : (
         <div className="space-y-2">
           {byDay.map((day) => (
-            <div key={day.index} className="bg-card border border-border rounded-lg p-4">
+            <div key={day.index} className="card-surface p-4 sm:p-5">
               <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">{day.nome}</p>
               <div className="space-y-2">
                 {day.items.map((item) => (
@@ -180,7 +161,7 @@ function DisponibilidadesContent() {
                       <button
                         onClick={() => openEdit(item)}
                         aria-label="Editar horário"
-                        className="h-7 w-7 rounded-md border border-border text-muted hover:text-ink hover:bg-surface transition-colors duration-150 flex items-center justify-center"
+                        className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted transition-colors duration-200 hover:bg-surface hover:text-ink"
                       >
                         <Pencil size={12} strokeWidth={1.75} />
                       </button>
@@ -188,7 +169,7 @@ function DisponibilidadesContent() {
                         onClick={() => handleRemover(item.id)}
                         disabled={removing === item.id}
                         aria-label="Remover horário"
-                        className="h-7 w-7 rounded-md border border-border text-muted hover:text-danger hover:border-danger/30 hover:bg-danger-subtle transition-colors duration-150 disabled:opacity-40 flex items-center justify-center"
+                        className="focus-ring flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted transition-colors duration-200 hover:border-danger/35 hover:bg-danger-subtle hover:text-danger disabled:opacity-40"
                       >
                         {removing === item.id
                           ? <Loader2 size={12} className="animate-spin" />
