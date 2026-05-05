@@ -81,6 +81,8 @@ export const prestadoresApi = {
     api.get<import('./types').Disponibilidade[]>(`/prestadores/${id}/disponibilidades`),
   create: (data: Record<string, unknown>) =>
     api.post<import('./types').Prestador>('/prestadores', data),
+  update: (id: string, data: Record<string, unknown>) =>
+    api.put<import('./types').Prestador>(`/prestadores/${id}`, data),
 }
 
 /* Clientes */
@@ -88,6 +90,8 @@ export const clientesApi = {
   getById: (id: string) => api.get<import('./types').Cliente>(`/clientes/${id}`),
   create: (data: Record<string, unknown>) =>
     api.post<import('./types').Cliente>('/clientes', data),
+  update: (id: string, data: Record<string, unknown>) =>
+    api.put<import('./types').Cliente>(`/clientes/${id}`, data),
 }
 
 /* Serviços */
@@ -147,6 +151,10 @@ export const disponibilidadesApi = {
 export const pagamentosApi = {
   getByAgendamento: (agendamentoId: string) =>
     api.get<import('./types').Pagamento>(`/pagamentos/agendamento/${agendamentoId}`),
-  marcarPago: (id: string) => api.patch(`/pagamentos/${id}/pagar`),
-  cancelar: (id: string) => api.patch(`/pagamentos/${id}/cancelar`),
+  marcarPago: (id: string) =>
+    api.patch<import('./types').Pagamento>(`/pagamentos/${id}/pagar`),
+  cancelar: (id: string) =>
+    api.patch<import('./types').Pagamento>(`/pagamentos/${id}/cancelar`),
+  criar: (agendamentoId: string, metodo: import('./types').PaymentMethod) =>
+    api.post<import('./types').Pagamento>('/pagamentos', { agendamentoId, metodo }),
 }
