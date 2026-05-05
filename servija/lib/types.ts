@@ -33,6 +33,7 @@ export interface Prestador {
   descricao?: string
   notaMedia?: number
   totalAvaliacoes?: number
+  categoriaNome?: string | null
   ativo?: boolean
   endereco?: {
     id: string
