@@ -41,7 +41,6 @@ export default function LoginPage() {
     try {
       await login(email, senha, tipo)
       success('Bem-vindo de volta!')
-      router.push(redirect ?? getRoleRedirect(tipo))
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'E-mail ou senha incorretos'
       setFormError(msg)
