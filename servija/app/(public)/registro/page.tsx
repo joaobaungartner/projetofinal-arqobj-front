@@ -40,6 +40,21 @@ export default function RegistroPage() {
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
+  const handleTelefone = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 11)
+    let masked = digits
+    if (digits.length > 10) {
+      masked = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
+    } else if (digits.length > 6) {
+      masked = `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
+    } else if (digits.length > 2) {
+      masked = `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+    } else if (digits.length > 0) {
+      masked = `(${digits}`
+    }
+    setForm((prev) => ({ ...prev, telefone: masked }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormError('')
@@ -137,8 +152,8 @@ export default function RegistroPage() {
                 <input id="confirmar" type="password" autoComplete="new-password" value={form.confirmarSenha} onChange={set('confirmarSenha')} placeholder="Repita a senha" className="input-field" />
               </div>
               <div>
-                <Label htmlFor="telefone" optional>Telefone</Label>
-                <input id="telefone" type="tel" value={form.telefone} onChange={set('telefone')} placeholder="(11) 99999-9999" className="input-field" />
+                <Label htmlFor="telefone">Telefone</Label>
+                <input id="telefone" type="tel" value={form.telefone} onChange={handleTelefone} placeholder="(11) 99999-9999" className="input-field" />
               </div>
               <div>
                 <Label htmlFor="cidade">Cidade</Label>
