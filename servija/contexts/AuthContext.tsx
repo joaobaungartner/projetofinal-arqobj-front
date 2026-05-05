@@ -8,14 +8,14 @@ import {
   useCallback,
   ReactNode,
 } from 'react'
-import { authApi } from '@/lib/api'
-import type { UserRole, Cliente, Prestador } from '@/lib/types'
+import { authApi, clientesApi, prestadoresApi } from '@/lib/api'
+import type { UserRole } from '@/lib/types'
 
 interface AuthUser {
   email: string
   role: UserRole
-  clienteId?: number
-  prestadorId?: number
+  clienteId?: string
+  prestadorId?: string
   nome?: string
 }
 
@@ -32,7 +32,20 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 const TOKEN_KEY = 'servija_token'
 const USER_KEY = 'servija_user'
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const payload = token.split('.')[1]
+    return JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
+  } catch {
+    return null
+  }
+}
+
+function normalizeRole(role: string): UserRole {
+  const stripped = role.startsWith('ROLE_') ? role.slice(5) : role
+  return stripped as UserRole
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null)
@@ -57,31 +70,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(TOKEN_KEY, newToken)
     setToken(newToken)
 
-    let authUser: AuthUser = { email, role: res.role as UserRole }
+    const normalizedRole = normalizeRole(res.role)
+    const payload = decodeJwtPayload(newToken)
+    const userId = payload?.sub as string | undefined
 
-    try {
-      if (res.role === 'CLIENTE') {
-        const clientes = await fetch(`${apiUrl}/clientes`, {
-          headers: { Authorization: `Bearer ${newToken}` },
-        }).then((r) => r.json() as Promise<Cliente[]>)
-        const found = Array.isArray(clientes)
-          ? clientes.find((c) => c.email === email)
-          : null
-        if (found) {
-          authUser = { ...authUser, clienteId: found.id, nome: found.nome }
+    let authUser: AuthUser = { email, role: normalizedRole }
+
+    if (userId) {
+      try {
+        if (normalizedRole === 'CLIENTE') {
+          const cliente = await clientesApi.getById(userId)
+          authUser = { ...authUser, clienteId: userId, nome: cliente.nome }
+        } else if (normalizedRole === 'PRESTADOR') {
+          const prestador = await prestadoresApi.getById(userId)
+          authUser = { ...authUser, prestadorId: userId, nome: prestador.nome }
         }
-      } else if (res.role === 'PRESTADOR') {
-        const prestadores = await fetch(`${apiUrl}/prestadores`, {
-          headers: { Authorization: `Bearer ${newToken}` },
-        }).then((r) => r.json() as Promise<Prestador[]>)
-        const found = Array.isArray(prestadores)
-          ? prestadores.find((p) => p.email === email)
-          : null
-        if (found) {
-          authUser = { ...authUser, prestadorId: found.id, nome: found.nome }
+      } catch {
+        // Se falhar ao buscar nome, ainda mantém o userId
+        if (normalizedRole === 'CLIENTE') {
+          authUser = { ...authUser, clienteId: userId }
+        } else if (normalizedRole === 'PRESTADOR') {
+          authUser = { ...authUser, prestadorId: userId }
         }
       }
-    } catch {}
+    }
 
     localStorage.setItem(USER_KEY, JSON.stringify(authUser))
     setUser(authUser)

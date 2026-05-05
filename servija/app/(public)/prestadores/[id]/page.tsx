@@ -27,7 +27,7 @@ export default function PerfilPrestadorPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
-  const prestadorId = Number(id)
+  const prestadorId = id
 
   const { isAuthenticated, role, user } = useAuth()
   const { success, error: toastError } = useToast()
@@ -50,7 +50,7 @@ export default function PerfilPrestadorPage({
       .then(([p, s, avs]) => {
         setPrestador(p)
         setServicos(s)
-        setAvaliacoes(avs.filter((a) => a.prestadorId === prestadorId))
+        setAvaliacoes(avs.filter((a) => String(a.prestadorId) === String(prestadorId)))
       })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -62,7 +62,7 @@ export default function PerfilPrestadorPage({
       .getAll()
       .then((favs) => {
         const fav = favs.find(
-          (f) => f.prestadorId === prestadorId && f.clienteId === user?.clienteId
+          (f) => String(f.prestadorId) === String(prestadorId) && String(f.clienteId) === String(user?.clienteId)
         )
         setFavorito(fav ?? null)
       })
@@ -82,7 +82,7 @@ export default function PerfilPrestadorPage({
         setFavorito(null)
         success('Removido dos favoritos')
       } else {
-        await favoritosApi.create(user!.clienteId!, prestadorId)
+        await favoritosApi.create(user!.clienteId!, String(prestadorId))
         const favs = await favoritosApi.getAll()
         const fav = favs.find(
           (f) => f.prestadorId === prestadorId && f.clienteId === user?.clienteId

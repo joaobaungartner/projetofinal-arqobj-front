@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, Pencil, Scissors, Loader2 } from 'lucide-react'
-import { servicosApi } from '@/lib/api'
-import type { Servico, CreateServicoDto } from '@/lib/types'
+import { servicosApi, categoriasApi } from '@/lib/api'
+import type { Servico, CreateServicoDto, Categoria } from '@/lib/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { AuthGuard } from '@/components/AuthGuard'
@@ -18,20 +18,26 @@ interface FormData {
   descricao: string
   preco: string
   duracaoMinutos: string
+  categoriaId: string
 }
 
-const emptyForm: FormData = { nome: '', descricao: '', preco: '', duracaoMinutos: '' }
+const emptyForm: FormData = { nome: '', descricao: '', preco: '', duracaoMinutos: '', categoriaId: '' }
 
 function ServicosContent() {
   const { user } = useAuth()
   const { success, error: toastError } = useToast()
   const [servicos, setServicos] = useState<Servico[]>([])
+  const [categorias, setCategorias] = useState<Categoria[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<Servico | null>(null)
   const [form, setForm] = useState<FormData>(emptyForm)
   const [saving, setSaving] = useState(false)
-  const [actionLoading, setActionLoading] = useState<number | null>(null)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  useEffect(() => {
+    categoriasApi.getAtivas().then(setCategorias).catch(() => {})
+  }, [])
 
   const load = useCallback(async () => {
     if (!user?.prestadorId) return
@@ -50,26 +56,42 @@ function ServicosContent() {
   const openCreate = () => { setEditing(null); setForm(emptyForm); setShowForm(true) }
   const openEdit = (s: Servico) => {
     setEditing(s)
-    setForm({ nome: s.nome, descricao: s.descricao ?? '', preco: String(s.preco), duracaoMinutos: String(s.duracaoMinutos) })
+    setForm({
+      nome: s.nome,
+      descricao: s.descricao ?? '',
+      preco: String(s.preco),
+      duracaoMinutos: String(s.duracaoMinutos),
+      categoriaId: s.categoriaId ?? '',
+    })
     setShowForm(true)
   }
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user?.prestadorId) return
+    if (!form.categoriaId) {
+      toastError('Selecione uma categoria para o serviço')
+      return
+    }
     setSaving(true)
     try {
-      const data: CreateServicoDto = {
-        prestadorId: user.prestadorId,
-        nome: form.nome,
-        descricao: form.descricao || undefined,
-        preco: parseFloat(form.preco),
-        duracaoMinutos: parseInt(form.duracaoMinutos),
-      }
       if (editing) {
-        await servicosApi.update(editing.id, data)
+        await servicosApi.update(editing.id, {
+          nome: form.nome,
+          descricao: form.descricao || undefined,
+          preco: parseFloat(form.preco),
+          duracaoMinutos: parseInt(form.duracaoMinutos),
+        })
         success('Serviço atualizado')
       } else {
+        const data: CreateServicoDto = {
+          prestadorId: user.prestadorId,
+          categoriaId: form.categoriaId,
+          nome: form.nome,
+          descricao: form.descricao || undefined,
+          preco: parseFloat(form.preco),
+          duracaoMinutos: parseInt(form.duracaoMinutos),
+        }
         await servicosApi.create(data)
         success('Serviço criado')
       }
@@ -116,13 +138,28 @@ function ServicosContent() {
               <input id="svc-nome" type="text" required value={form.nome} onChange={(e) => setForm((p) => ({ ...p, nome: e.target.value }))} className="input-field" />
             </div>
             <div>
+              <label htmlFor="svc-cat" className="block text-xs font-medium text-ink mb-1.5">Categoria *</label>
+              <select
+                id="svc-cat"
+                required
+                value={form.categoriaId}
+                onChange={(e) => setForm((p) => ({ ...p, categoriaId: e.target.value }))}
+                className="input-field"
+              >
+                <option value="">Selecione uma categoria</option>
+                {categorias.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.nome}</option>
+                ))}
+              </select>
+            </div>
+            <div>
               <label htmlFor="svc-desc" className="block text-xs font-medium text-ink mb-1.5">Descrição <span className="text-subtle font-normal">(opcional)</span></label>
               <textarea id="svc-desc" rows={2} value={form.descricao} onChange={(e) => setForm((p) => ({ ...p, descricao: e.target.value }))} className="textarea-field min-h-[4.5rem]" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label htmlFor="svc-preco" className="block text-xs font-medium text-ink mb-1.5">Preço (R$) *</label>
-                <input id="svc-preco" type="number" step="0.01" min="0" required value={form.preco} onChange={(e) => setForm((p) => ({ ...p, preco: e.target.value }))} className="input-field" />
+                <input id="svc-preco" type="number" step="0.01" min="0.01" required value={form.preco} onChange={(e) => setForm((p) => ({ ...p, preco: e.target.value }))} className="input-field" />
               </div>
               <div>
                 <label htmlFor="svc-dur" className="block text-xs font-medium text-ink mb-1.5">Duração (min) *</label>

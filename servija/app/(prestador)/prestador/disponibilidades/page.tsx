@@ -11,7 +11,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { PageWrapper } from '@/components/PageWrapper'
 import { SimpleModal } from '@/components/SimpleModal'
 import { Skeleton } from '@/components/LoadingSkeleton'
-import { DIAS_SEMANA } from '@/lib/utils'
+import { DIAS_SEMANA, DIAS_SEMANA_LIST } from '@/lib/utils'
 
 interface FormData { diaSemana: string; horaInicio: string; horaFim: string }
 const emptyForm: FormData = { diaSemana: '1', horaInicio: '08:00', horaFim: '17:00' }
@@ -25,7 +25,7 @@ function DisponibilidadesContent() {
   const [editing, setEditing] = useState<Disponibilidade | null>(null)
   const [form, setForm] = useState<FormData>(emptyForm)
   const [saving, setSaving] = useState(false)
-  const [removing, setRemoving] = useState<number | null>(null)
+  const [removing, setRemoving] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     if (!user?.prestadorId) return
@@ -53,9 +53,19 @@ function DisponibilidadesContent() {
     if (!user?.prestadorId) return
     setSaving(true)
     try {
-      const data = { prestadorId: user.prestadorId, diaSemana: parseInt(form.diaSemana), horaInicio: form.horaInicio, horaFim: form.horaFim }
-      if (editing) { await disponibilidadesApi.update(editing.id, data); success('Atualizado') }
-      else { await disponibilidadesApi.create(data); success('Criado') }
+      const data = {
+        diaSemana: parseInt(form.diaSemana),
+        horaInicio: form.horaInicio,
+        horaFim: form.horaFim,
+        ativa: true,
+      }
+      if (editing) {
+        await disponibilidadesApi.update(user.prestadorId, editing.id, data)
+        success('Atualizado')
+      } else {
+        await disponibilidadesApi.create(user.prestadorId, data)
+        success('Criado')
+      }
       setShowForm(false)
       load()
     } catch (err: unknown) {
@@ -65,10 +75,11 @@ function DisponibilidadesContent() {
     }
   }
 
-  const handleRemover = async (id: number) => {
+  const handleRemover = async (id: string) => {
+    if (!user?.prestadorId) return
     setRemoving(id)
     try {
-      await disponibilidadesApi.delete(id)
+      await disponibilidadesApi.delete(user.prestadorId, id)
       success('Removido')
       setDisponibilidades((prev) => prev.filter((d) => d.id !== id))
     } catch {
@@ -78,9 +89,11 @@ function DisponibilidadesContent() {
     }
   }
 
-  const byDay = DIAS_SEMANA.map((nome, i) => ({
-    nome, index: i,
-    items: disponibilidades.filter((d) => d.diaSemana === i),
+  // Agrupar por dia da semana (valores ISO 1-7)
+  const byDay = DIAS_SEMANA_LIST.map(({ value, label }) => ({
+    value,
+    label,
+    items: disponibilidades.filter((d) => d.diaSemana === value),
   })).filter((d) => d.items.length > 0)
 
   return (
@@ -106,7 +119,9 @@ function DisponibilidadesContent() {
             <div>
               <label htmlFor="dia" className="block text-xs font-medium text-ink mb-1.5">Dia da semana</label>
               <select id="dia" value={form.diaSemana} onChange={(e) => setForm((p) => ({ ...p, diaSemana: e.target.value }))} className="input-field">
-                {DIAS_SEMANA.map((dia, i) => <option key={i} value={i}>{dia}</option>)}
+                {DIAS_SEMANA_LIST.map(({ value, label }) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -149,8 +164,8 @@ function DisponibilidadesContent() {
       ) : (
         <div className="space-y-2">
           {byDay.map((day) => (
-            <div key={day.index} className="card-surface p-4 sm:p-5">
-              <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">{day.nome}</p>
+            <div key={day.value} className="card-surface p-4 sm:p-5">
+              <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-3">{day.label}</p>
               <div className="space-y-2">
                 {day.items.map((item) => (
                   <div key={item.id} className="flex items-center justify-between gap-3">

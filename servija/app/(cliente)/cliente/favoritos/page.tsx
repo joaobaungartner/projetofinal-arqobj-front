@@ -18,7 +18,7 @@ function FavoritosContent() {
   const { success, error: toastError } = useToast()
   const [favoritos, setFavoritos] = useState<Favorito[]>([])
   const [loading, setLoading] = useState(true)
-  const [removing, setRemoving] = useState<number | null>(null)
+  const [removing, setRemoving] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     if (!user?.clienteId) return
@@ -35,7 +35,7 @@ function FavoritosContent() {
 
   useEffect(() => { load() }, [load])
 
-  const handleRemover = async (id: number) => {
+  const handleRemover = async (id: string) => {
     setRemoving(id)
     try {
       await favoritosApi.delete(id)

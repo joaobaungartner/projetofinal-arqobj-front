@@ -39,12 +39,24 @@ export function getInitials(name: string): string {
     .join('')
 }
 
-export const DIAS_SEMANA = [
-  'Domingo',
-  'Segunda',
-  'Terça',
-  'Quarta',
-  'Quinta',
-  'Sexta',
-  'Sábado',
+// Mapeamento ISO DayOfWeek: 1=MONDAY...7=SUNDAY (compatível com o backend Java)
+export const DIAS_SEMANA: Record<number, string> = {
+  1: 'Segunda-feira',
+  2: 'Terça-feira',
+  3: 'Quarta-feira',
+  4: 'Quinta-feira',
+  5: 'Sexta-feira',
+  6: 'Sábado',
+  7: 'Domingo',
+}
+
+// Array ordenado para uso em selects
+export const DIAS_SEMANA_LIST = [
+  { value: 1, label: 'Segunda-feira' },
+  { value: 2, label: 'Terça-feira' },
+  { value: 3, label: 'Quarta-feira' },
+  { value: 4, label: 'Quinta-feira' },
+  { value: 5, label: 'Sexta-feira' },
+  { value: 6, label: 'Sábado' },
+  { value: 7, label: 'Domingo' },
 ]

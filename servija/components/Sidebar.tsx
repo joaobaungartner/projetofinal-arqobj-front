@@ -8,6 +8,7 @@ import {
   Scissors,
   Clock,
   Heart,
+  UserCircle,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -20,6 +21,7 @@ interface NavItem {
 const CLIENTE_NAV: NavItem[] = [
   { href: '/cliente/agendamentos', label: 'Agendamentos', icon: CalendarCheck },
   { href: '/cliente/favoritos', label: 'Favoritos', icon: Heart },
+  { href: '/cliente/perfil', label: 'Perfil', icon: UserCircle },
 ]
 
 const PRESTADOR_NAV: NavItem[] = [
@@ -27,6 +29,7 @@ const PRESTADOR_NAV: NavItem[] = [
   { href: '/prestador/agendamentos', label: 'Agendamentos', icon: CalendarCheck },
   { href: '/prestador/servicos', label: 'Serviços', icon: Scissors },
   { href: '/prestador/disponibilidades', label: 'Disponibilidade', icon: Clock },
+  { href: '/prestador/perfil', label: 'Perfil', icon: UserCircle },
 ]
 
 interface SidebarProps {

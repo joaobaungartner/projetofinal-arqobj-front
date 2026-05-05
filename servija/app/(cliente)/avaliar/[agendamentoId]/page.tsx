@@ -14,7 +14,7 @@ import { Skeleton } from '@/components/LoadingSkeleton'
 import { PageWrapper } from '@/components/PageWrapper'
 import { formatDate } from '@/lib/utils'
 
-function AvaliarContent({ agendamentoId }: { agendamentoId: number }) {
+function AvaliarContent({ agendamentoId }: { agendamentoId: string }) {
   const { user } = useAuth()
   const { success, error: toastError } = useToast()
   const router = useRouter()
@@ -30,7 +30,7 @@ function AvaliarContent({ agendamentoId }: { agendamentoId: number }) {
     if (!user?.clienteId) return
     agendamentosApi
       .getByCliente(user.clienteId)
-      .then((ags) => setAgendamento(ags.find((a) => a.id === agendamentoId) ?? null))
+      .then((ags) => setAgendamento(ags.find((a) => String(a.id) === String(agendamentoId)) ?? null))
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [agendamentoId, user?.clienteId])
@@ -85,7 +85,7 @@ function AvaliarContent({ agendamentoId }: { agendamentoId: number }) {
             {agendamento.servicoNome ?? 'Serviço'}
           </p>
           <p className="text-xs text-muted mt-0.5">
-            {agendamento.prestadorNome ?? 'Prestador'} · {formatDate(agendamento.dataHora)}
+            {agendamento.prestadorNome ?? 'Prestador'}{agendamento.dataHoraInicio ? ` · ${formatDate(agendamento.dataHoraInicio)}` : ''}
           </p>
         </div>
 
@@ -167,7 +167,7 @@ export default function AvaliarPage({
   const { agendamentoId } = use(params)
   return (
     <AuthGuard requiredRole="CLIENTE">
-      <AvaliarContent agendamentoId={Number(agendamentoId)} />
+      <AvaliarContent agendamentoId={agendamentoId} />
     </AuthGuard>
   )
 }

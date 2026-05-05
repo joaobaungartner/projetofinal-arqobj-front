@@ -10,9 +10,9 @@ import type { UserRole } from '@/lib/types'
 
 export default function LoginPage() {
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') ?? '/'
+  const redirect = searchParams.get('redirect')
 
-  const { login, isAuthenticated } = useAuth()
+  const { login, isAuthenticated, role } = useAuth()
   const { success, error: toastError } = useToast()
   const router = useRouter()
 
@@ -22,9 +22,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [formError, setFormError] = useState('')
 
+  function getRoleRedirect(r: UserRole): string {
+    return r === 'PRESTADOR' ? '/prestador/dashboard' : '/cliente/agendamentos'
+  }
+
   useEffect(() => {
-    if (isAuthenticated) router.replace(redirect)
-  }, [isAuthenticated, redirect, router])
+    if (isAuthenticated) router.replace(redirect ?? getRoleRedirect(role ?? 'CLIENTE'))
+  }, [isAuthenticated, redirect, role, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,7 +41,6 @@ export default function LoginPage() {
     try {
       await login(email, senha, tipo)
       success('Bem-vindo de volta!')
-      router.push(redirect)
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'E-mail ou senha incorretos'
       setFormError(msg)

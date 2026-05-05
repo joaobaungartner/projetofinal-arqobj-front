@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { CalendarCheck, Loader2 } from 'lucide-react'
-import { agendamentosApi, avaliacoesApi } from '@/lib/api'
-import type { Agendamento, AppointmentStatus } from '@/lib/types'
+import { agendamentosApi, avaliacoesApi, pagamentosApi } from '@/lib/api'
+import type { Agendamento, AppointmentStatus, Pagamento } from '@/lib/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { AuthGuard } from '@/components/AuthGuard'
@@ -30,8 +30,23 @@ function AgendamentosContent() {
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<AppointmentStatus | 'ALL'>('ALL')
-  const [avaliadosIds, setAvaliadosIds] = useState<Set<number>>(new Set())
-  const [actionLoading, setActionLoading] = useState<number | null>(null)
+  const [avaliadosIds, setAvaliadosIds] = useState<Set<string>>(new Set())
+  const [pagamentosMap, setPagamentosMap] = useState<Map<string, Pagamento | null>>(new Map())
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+  const fetchPagamentos = useCallback(async (ags: Agendamento[]) => {
+    const concluidos = ags.filter((a) => a.status === 'CONCLUIDO')
+    if (concluidos.length === 0) return
+    const results = await Promise.allSettled(
+      concluidos.map((a) => pagamentosApi.getByAgendamento(a.id))
+    )
+    const map = new Map<string, Pagamento | null>()
+    concluidos.forEach((a, i) => {
+      const r = results[i]
+      map.set(a.id, r.status === 'fulfilled' ? r.value : null)
+    })
+    setPagamentosMap(map)
+  }, [])
 
   const load = useCallback(async () => {
     if (!user?.clienteId) return
@@ -45,20 +60,34 @@ function AgendamentosContent() {
       setAvaliadosIds(new Set(
         avs.filter((a) => a.clienteId === user.clienteId).map((a) => a.agendamentoId)
       ))
+      await fetchPagamentos(ags)
     } catch {
       toastError('Erro ao carregar agendamentos')
     } finally {
       setLoading(false)
     }
-  }, [user?.clienteId, toastError])
+  }, [user?.clienteId, toastError, fetchPagamentos])
 
   useEffect(() => { load() }, [load])
 
-  const handleCancelar = async (id: number) => {
+  const handleCancelar = async (id: string) => {
     setActionLoading(id)
     try { await agendamentosApi.cancelar(id); success('Agendamento cancelado'); load() }
     catch { toastError('Erro ao cancelar') }
     finally { setActionLoading(null) }
+  }
+
+  const handleMarcarPago = async (pagamento: Pagamento) => {
+    setActionLoading(pagamento.id)
+    try {
+      const updated = await pagamentosApi.marcarPago(pagamento.id)
+      setPagamentosMap((prev) => new Map(prev).set(updated.agendamentoId, updated))
+      success('Pagamento registrado!')
+    } catch {
+      toastError('Erro ao registrar pagamento')
+    } finally {
+      setActionLoading(null)
+    }
   }
 
   const filtered = activeTab === 'ALL'
@@ -103,37 +132,52 @@ function AgendamentosContent() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((ag) => (
-            <AppointmentCard
-              key={ag.id}
-              agendamento={ag}
-              viewAs="cliente"
-              actions={
-                <>
-                  {ag.status === 'CONCLUIDO' && !avaliadosIds.has(ag.id) && (
-                    <button
-                      type="button"
-                      onClick={() => router.push(`/avaliar/${ag.id}`)}
-                      className="btn-primary-sm"
-                    >
-                      Avaliar
-                    </button>
-                  )}
-                  {(ag.status === 'PENDENTE' || ag.status === 'CONFIRMADO') && (
-                    <button
-                      type="button"
-                      onClick={() => handleCancelar(ag.id)}
-                      disabled={actionLoading === ag.id}
-                      className="btn-secondary-sm border-danger/25 text-danger hover:border-danger/35 hover:bg-danger-subtle"
-                    >
-                      {actionLoading === ag.id && <Loader2 size={13} className="animate-spin" />}
-                      Cancelar
-                    </button>
-                  )}
-                </>
-              }
-            />
-          ))}
+          {filtered.map((ag) => {
+            const pagamento = pagamentosMap.get(ag.id)
+            return (
+              <AppointmentCard
+                key={ag.id}
+                agendamento={ag}
+                viewAs="cliente"
+                pagamento={ag.status === 'CONCLUIDO' ? pagamento : undefined}
+                actions={
+                  <>
+                    {ag.status === 'CONCLUIDO' && !avaliadosIds.has(ag.id) && (
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/avaliar/${ag.id}`)}
+                        className="btn-primary-sm"
+                      >
+                        Avaliar
+                      </button>
+                    )}
+                    {ag.status === 'CONCLUIDO' && pagamento?.status === 'PENDENTE' && (
+                      <button
+                        type="button"
+                        onClick={() => handleMarcarPago(pagamento)}
+                        disabled={actionLoading === pagamento.id}
+                        className="btn-success-sm"
+                      >
+                        {actionLoading === pagamento.id && <Loader2 size={13} className="animate-spin" />}
+                        Confirmar pagamento
+                      </button>
+                    )}
+                    {(ag.status === 'PENDENTE' || ag.status === 'CONFIRMADO') && (
+                      <button
+                        type="button"
+                        onClick={() => handleCancelar(ag.id)}
+                        disabled={actionLoading === ag.id}
+                        className="btn-secondary-sm border-danger/25 text-danger hover:border-danger/35 hover:bg-danger-subtle"
+                      >
+                        {actionLoading === ag.id && <Loader2 size={13} className="animate-spin" />}
+                        Cancelar
+                      </button>
+                    )}
+                  </>
+                }
+              />
+            )
+          })}
         </div>
       )}
     </PageWrapper>

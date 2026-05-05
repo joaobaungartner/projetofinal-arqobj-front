@@ -18,7 +18,7 @@ function DashboardContent() {
   const { success, error: toastError } = useToast()
   const [agendamentos, setAgendamentos] = useState<Agendamento[]>([])
   const [loading, setLoading] = useState(true)
-  const [actionLoading, setActionLoading] = useState<number | null>(null)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     if (!user?.prestadorId) return
@@ -37,11 +37,11 @@ function DashboardContent() {
   const pendentes = agendamentos.filter((a) => a.status === 'PENDENTE')
   const hoje = new Date().toDateString()
   const confirmadosHoje = agendamentos.filter(
-    (a) => a.status === 'CONFIRMADO' && new Date(a.dataHora).toDateString() === hoje
+    (a) => a.status === 'CONFIRMADO' && new Date(a.dataHoraInicio).toDateString() === hoje
   )
   const concluidos = agendamentos.filter((a) => a.status === 'CONCLUIDO').length
 
-  const doAction = async (id: number, fn: (id: number) => Promise<unknown>, msg: string) => {
+  const doAction = async (id: string, fn: (id: string) => Promise<unknown>, msg: string) => {
     setActionLoading(id)
     try {
       await fn(id)

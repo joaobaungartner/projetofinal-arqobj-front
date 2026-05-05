@@ -12,114 +12,136 @@ export type PaymentMethod = 'PIX' | 'CARTAO' | 'DINHEIRO'
 export interface AuthResponse {
   token: string
   tipo: string
-  role: UserRole
+  role: string
 }
 
 export interface Cliente {
-  id: number
+  id: string
+  nome: string
+  email: string
+  telefone?: string
+  cpf?: string
+}
+
+export interface Prestador {
+  id: string
   nome: string
   email: string
   telefone?: string
   cidade?: string
   bairro?: string
-}
-
-export interface Prestador {
-  id: number
-  nome: string
-  email: string
-  telefone?: string
-  cidade: string
-  bairro?: string
   descricao?: string
   notaMedia?: number
   totalAvaliacoes?: number
-  categoriaId?: number
-  categoriaNome?: string
+  ativo?: boolean
+  endereco?: {
+    id: string
+    rua: string
+    numero: string
+    bairro: string
+    cidade: string
+    estado: string
+    cep?: string
+    complemento?: string
+  }
 }
 
 export interface Categoria {
-  id: number
+  id: string
   nome: string
   descricao?: string
   ativa: boolean
 }
 
 export interface Servico {
-  id: number
+  id: string
   nome: string
   descricao?: string
   preco: number
   duracaoMinutos: number
   ativo: boolean
-  prestadorId: number
+  prestadorId: string
+  categoriaId?: string
 }
 
 export interface Agendamento {
-  id: number
-  clienteId: number
+  id: string
+  clienteId: string
   clienteNome?: string
-  prestadorId: number
+  prestadorId: string
   prestadorNome?: string
-  servicoId: number
+  servicoId: string
   servicoNome?: string
   servicoPreco?: number
-  dataHora: string
+  dataHoraInicio: string
+  dataHoraFim?: string
   status: AppointmentStatus
-  formaPagamento: PaymentMethod
-  observacao?: string
-  avaliado?: boolean
+  observacaoCliente?: string
 }
 
 export interface Avaliacao {
-  id: number
-  clienteId: number
+  id: string
+  clienteId: string
   clienteNome?: string
-  prestadorId: number
-  agendamentoId: number
+  prestadorId: string
+  agendamentoId: string
   nota: number
   comentario?: string
   dataCriacao?: string
 }
 
 export interface Favorito {
-  id: number
-  clienteId: number
-  prestadorId: number
+  id: string
+  clienteId: string
+  prestadorId: string
   prestadorNome?: string
   prestadorCidade?: string
-  prestadorNota?: number
+  prestadorNotaMedia?: number
+  dataCriacao?: string
 }
 
 export interface Disponibilidade {
-  id: number
-  prestadorId: number
+  id: string
+  prestadorId?: string
   diaSemana: number
   horaInicio: string
   horaFim: string
+  ativa?: boolean
 }
 
 export interface CreateAgendamentoDto {
-  clienteId: number
-  prestadorId: number
-  servicoId: number
-  dataHora: string
-  formaPagamento: PaymentMethod
-  observacao?: string
+  clienteId: string
+  prestadorId: string
+  servicoId: string
+  dataHoraInicio: string
+  metodoPagamento: PaymentMethod
+  observacaoCliente?: string
 }
 
 export interface CreateServicoDto {
-  prestadorId: number
+  prestadorId: string
+  categoriaId: string
   nome: string
   descricao?: string
   preco: number
   duracaoMinutos: number
 }
 
+export type PaymentStatus = 'PENDENTE' | 'PAGO' | 'CANCELADO' | 'REEMBOLSADO'
+
+export interface Pagamento {
+  id: string
+  agendamentoId: string
+  valor: number
+  metodo: PaymentMethod
+  status: PaymentStatus
+  dataPagamento?: string
+}
+
 export interface CreateAvaliacaoDto {
-  clienteId: number
-  prestadorId: number
-  agendamentoId: number
+  clienteId: string
+  prestadorId: string
+  agendamentoId: string
   nota: number
   comentario?: string
 }

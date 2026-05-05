@@ -15,7 +15,7 @@ export default function RegistroPage() {
   const searchParams = useSearchParams()
   const defaultTipo = (searchParams.get('tipo')?.toUpperCase() as Tipo) ?? 'CLIENTE'
 
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, login, role } = useAuth()
   const { success, error: toastError } = useToast()
   const router = useRouter()
 
@@ -25,12 +25,15 @@ export default function RegistroPage() {
   const [formError, setFormError] = useState('')
   const [form, setForm] = useState({
     nome: '', email: '', senha: '', confirmarSenha: '',
-    telefone: '', cidade: '', bairro: '', descricao: '', categoriaId: '',
+    telefone: '', cidade: '', bairro: '', estado: '',
+    descricao: '', categoriaId: '',
   })
 
   useEffect(() => {
-    if (isAuthenticated) router.replace('/')
-  }, [isAuthenticated, router])
+    if (isAuthenticated) {
+      router.replace(role === 'PRESTADOR' ? '/prestador/dashboard' : '/cliente/agendamentos')
+    }
+  }, [isAuthenticated, role, router])
 
   useEffect(() => {
     categoriasApi.getAtivas().then(setCategorias).catch(() => {})
@@ -62,29 +65,38 @@ export default function RegistroPage() {
       setFormError('As senhas não coincidem.')
       return
     }
-    if (!form.nome || !form.email || !form.senha || !form.cidade) {
+    if (!form.nome || !form.email || !form.senha) {
       setFormError('Preencha os campos obrigatórios.')
+      return
+    }
+    if (tipo === 'PRESTADOR' && !form.cidade) {
+      setFormError('Prestadores precisam informar a cidade.')
       return
     }
     setLoading(true)
     try {
       if (tipo === 'CLIENTE') {
         await clientesApi.create({
-          nome: form.nome, email: form.email, senha: form.senha,
+          nome: form.nome,
+          email: form.email,
+          senha: form.senha,
           telefone: form.telefone || undefined,
-          cidade: form.cidade, bairro: form.bairro || undefined,
         })
       } else {
         await prestadoresApi.create({
-          nome: form.nome, email: form.email, senha: form.senha,
+          nome: form.nome,
+          email: form.email,
+          senha: form.senha,
           telefone: form.telefone || undefined,
-          cidade: form.cidade, bairro: form.bairro || undefined,
           descricao: form.descricao || undefined,
-          categoriaId: form.categoriaId ? Number(form.categoriaId) : undefined,
+          categoriaId: form.categoriaId || undefined,
+          cidade: form.cidade,
+          bairro: form.bairro || undefined,
+          estado: form.estado || undefined,
         })
       }
-      success('Conta criada! Faça login para continuar.')
-      router.push('/login')
+      await login(form.email, form.senha, tipo)
+      success('Conta criada com sucesso!')
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Erro ao criar conta'
       setFormError(msg)
@@ -151,23 +163,27 @@ export default function RegistroPage() {
                 <Label htmlFor="confirmar">Confirmar senha</Label>
                 <input id="confirmar" type="password" autoComplete="new-password" value={form.confirmarSenha} onChange={set('confirmarSenha')} placeholder="Repita a senha" className="input-field" />
               </div>
-              <div>
-                <Label htmlFor="telefone">Telefone</Label>
-                <input id="telefone" type="tel" value={form.telefone} onChange={handleTelefone} placeholder="(11) 99999-9999" className="input-field" />
-              </div>
-              <div>
-                <Label htmlFor="cidade">Cidade</Label>
-                <input id="cidade" type="text" value={form.cidade} onChange={set('cidade')} placeholder="Sua cidade" className="input-field" />
-              </div>
               <div className="sm:col-span-2">
-                <Label htmlFor="bairro" optional>Bairro</Label>
-                <input id="bairro" type="text" value={form.bairro} onChange={set('bairro')} placeholder="Seu bairro" className="input-field" />
+                <Label htmlFor="telefone" optional>Telefone</Label>
+                <input id="telefone" type="tel" value={form.telefone} onChange={handleTelefone} placeholder="(11) 99999-9999" className="input-field" />
               </div>
 
               {tipo === 'PRESTADOR' && (
                 <>
+                  <div>
+                    <Label htmlFor="cidade">Cidade</Label>
+                    <input id="cidade" type="text" value={form.cidade} onChange={set('cidade')} placeholder="Ex: São Paulo" className="input-field" />
+                  </div>
+                  <div>
+                    <Label htmlFor="estado" optional>Estado</Label>
+                    <input id="estado" type="text" value={form.estado} onChange={set('estado')} placeholder="Ex: SP" maxLength={2} className="input-field" />
+                  </div>
                   <div className="sm:col-span-2">
-                    <Label htmlFor="categoria" optional>Categoria</Label>
+                    <Label htmlFor="bairro" optional>Bairro</Label>
+                    <input id="bairro" type="text" value={form.bairro} onChange={set('bairro')} placeholder="Seu bairro" className="input-field" />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label htmlFor="categoria" optional>Categoria de serviço</Label>
                     <select id="categoria" value={form.categoriaId} onChange={set('categoriaId')} className="input-field">
                       <option value="">Selecione uma categoria</option>
                       {categorias.map((cat) => (

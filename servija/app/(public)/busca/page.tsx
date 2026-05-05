@@ -42,21 +42,31 @@ export default function BuscaPage() {
         results = await prestadoresApi.getByCidade(cidade.trim())
       }
 
-      const enriched = await Promise.all(
+      // Busca serviços de todos os prestadores em paralelo (uma única rodada de requests)
+      const servicosPorPrestador = await Promise.all(
         results.map(async (p) => {
           try {
-            const servicos = await servicosApi.getAtivosByPrestador(p.id)
-            const menorPreco =
-              servicos.length > 0 ? Math.min(...servicos.map((s) => s.preco)) : undefined
-            return { ...p, menorPreco }
+            return { prestadorId: p.id, servicos: await servicosApi.getAtivosByPrestador(p.id) }
           } catch {
-            return p
+            return { prestadorId: p.id, servicos: [] }
           }
         })
       )
 
+      const servicosMap = new Map(servicosPorPrestador.map((e) => [e.prestadorId, e.servicos]))
+
+      const enriched = results.map((p) => {
+        const servicos = servicosMap.get(p.id) ?? []
+        const menorPreco = servicos.length > 0 ? Math.min(...servicos.map((s) => s.preco)) : undefined
+        return { ...p, menorPreco }
+      })
+
+      // Filtrar por categoria se selecionada
       const filtered = categoriaId
-        ? enriched.filter((p) => String(p.categoriaId) === String(categoriaId))
+        ? enriched.filter((p) => {
+            const servicos = servicosMap.get(p.id) ?? []
+            return servicos.some((s) => String(s.categoriaId) === String(categoriaId))
+          })
         : enriched
 
       setPrestadores(filtered)

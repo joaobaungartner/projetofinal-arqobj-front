@@ -58,7 +58,7 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
   )
 }
 
-function AgendarContent({ prestadorId }: { prestadorId: number }) {
+function AgendarContent({ prestadorId }: { prestadorId: string }) {
   const { user } = useAuth()
   const { success, error: toastError } = useToast()
   const router = useRouter()
@@ -97,9 +97,9 @@ function AgendarContent({ prestadorId }: { prestadorId: number }) {
         clienteId: user.clienteId,
         prestadorId,
         servicoId: servicoSelecionado.id,
-        dataHora: new Date(dataHora).toISOString(),
-        formaPagamento: pagamento,
-        observacao: observacao || undefined,
+        dataHoraInicio: new Date(dataHora).toISOString().slice(0, 19),
+        metodoPagamento: pagamento,
+        observacaoCliente: observacao || undefined,
       })
       success('Agendamento criado com sucesso!')
       router.push('/cliente/agendamentos')
@@ -111,6 +111,7 @@ function AgendarContent({ prestadorId }: { prestadorId: number }) {
     }
   }
 
+  // Dias disponíveis: valores ISO 1-7
   const availableDays = new Set(disponibilidades.map((d) => d.diaSemana))
 
   if (loading) {
@@ -172,10 +173,10 @@ function AgendarContent({ prestadorId }: { prestadorId: number }) {
               <div className="mb-4 p-3.5 bg-surface border border-border rounded-lg">
                 <p className="text-xs font-medium text-muted mb-2">Dias disponíveis</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {DIAS_SEMANA.map((dia, i) =>
-                    availableDays.has(i) ? (
-                      <span key={i} className="text-xs bg-brand-subtle text-brand border border-brand/20 font-medium px-2 py-0.5 rounded-sm">
-                        {dia}
+                  {Array.from(availableDays).sort().map((dayValue) =>
+                    DIAS_SEMANA[dayValue] ? (
+                      <span key={dayValue} className="text-xs bg-brand-subtle text-brand border border-brand/20 font-medium px-2 py-0.5 rounded-sm">
+                        {DIAS_SEMANA[dayValue]}
                       </span>
                     ) : null
                   )}
@@ -295,7 +296,7 @@ export default function AgendarPage({
   const { prestadorId } = use(params)
   return (
     <AuthGuard requiredRole="CLIENTE">
-      <AgendarContent prestadorId={Number(prestadorId)} />
+      <AgendarContent prestadorId={prestadorId} />
     </AuthGuard>
   )
 }
